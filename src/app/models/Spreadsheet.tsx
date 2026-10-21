@@ -18,13 +18,17 @@ const ERROR_HELP: Record<string, string> = {
 };
 
 export function Spreadsheet({
-  rows, cols, widths, cells, entries, onEntries, marks, readOnly, showFormulas, focus,
+  rows, cols, widths, cells, entries, onEntries, marks, readOnly, showFormulas, focus, canEdit, owners,
 }: {
   rows: number; cols: number; widths: number[]; cells: Record<string, CellSpec>;
   entries: Raw; onEntries: (next: Raw) => void;
   marks?: Record<string, Mark>; readOnly?: boolean; showFormulas?: boolean;
   /** Select this cell when it changes (from the checklist). */
   focus?: { cell: string; n: number };
+  /** Team play: further limits which formula cells this person may type in. */
+  canEdit?: (a: string) => boolean;
+  /** Team play: who owns each cell, shown as a coloured edge and a tooltip. */
+  owners?: Record<string, { color: string; name: string }>;
 }) {
   const [sel, setSel] = useState<Pos>({ r: 0, c: 1 });
   const [anchor, setAnchor] = useState<Pos>({ r: 0, c: 1 });
@@ -54,7 +58,7 @@ export function Spreadsheet({
   }, [focus]);
 
   const a = addr(sel.r, sel.c);
-  const editable = (p: Pos) => !readOnly && (!cells[addr(p.r, p.c)] || cells[addr(p.r, p.c)].kind === "calc");
+  const editable = (p: Pos) => !readOnly && (!cells[addr(p.r, p.c)] || cells[addr(p.r, p.c)].kind === "calc") && (!canEdit || canEdit(addr(p.r, p.c)));
   const rawAt = (p: Pos) => { const k = addr(p.r, p.c); return given[k] ?? entries[k] ?? ""; };
   const r1 = Math.min(sel.r, anchor.r), r2 = Math.max(sel.r, anchor.r), c1 = Math.min(sel.c, anchor.c), c2 = Math.max(sel.c, anchor.c);
   const inRange = (r: number, c: number) => r >= r1 && r <= r2 && c >= c1 && c <= c2;
@@ -232,7 +236,7 @@ export function Spreadsheet({
           : spec?.kind === "input" ? <span className="muted">Given input. The checker changes these to test that your model updates.</span>
           : spec && spec.kind !== "calc" ? <span className="muted">Locked.</span>
           : marks?.[a] ? <span className={marks[a].ok ? "good" : "bad"}>{marks[a].note}</span>
-          : <span className="muted">{editable(sel) ? "Type a value or a formula starting with =. While typing a formula, click cells to reference them." : ""}</span>}
+          : <span className="muted">{editable(sel) ? "Type a value or a formula starting with =. While typing a formula, click cells to reference them." : owners?.[a]?.name ?? ""}</span>}
       </div>
       <div
         className="sheet-scroll"
@@ -265,6 +269,7 @@ export function Spreadsheet({
                   const editingHere = isSel && edit?.via === "cell";
                   const shown = showFormulas && raw.startsWith("=") ? raw : formatValue(val, s?.fmt);
                   const m = marks?.[k];
+                  const own = owners?.[k];
                   const cls = [`k-${kind}`, inRange(r, c) ? "in" : "", isSel ? "sel" : "", typeof val === "number" && !(showFormulas && raw.startsWith("=")) ? "n" : "", isError(val) ? "err" : "", m ? (m.ok ? "ok" : "bad") : ""].filter(Boolean).join(" ");
                   return (
                     <td
@@ -272,7 +277,8 @@ export function Spreadsheet({
                       className={cls}
                       role="gridcell"
                       aria-selected={isSel}
-                      title={m?.note}
+                      title={m?.note ?? own?.name}
+                      style={own && !m ? { boxShadow: `inset 3px 0 0 ${own.color}` } : undefined}
                       onMouseDown={(e) => {
                         if (pointAt({ r, c }, false)) { e.preventDefault(); dragging.current = true; return; }
                         closeEdit(true);

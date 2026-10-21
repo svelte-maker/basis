@@ -54,6 +54,7 @@ export async function submitModel(userId: string, slug: string, cells: Record<st
       if (state.solved) reason = "You already solved this version.";
       else if (state.everSolved) reason = "Rating points are only awarded for your first full solve of each model.";
       else if (state.revealed) reason = "No points because you viewed the answer model first.";
+      else if (await tx.teamMember.count({ where: { userId, team: { slug, finalizedAt: { not: null } } } })) reason = "No points because you built this task with a team.";
       else points = MODEL_POINTS[t.difficulty];
     }
     const s = await tx.modelState.update({

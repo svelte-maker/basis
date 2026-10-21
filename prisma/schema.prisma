@@ -40,6 +40,9 @@ model User {
   shortlistedBy Shortlist[]    @relation("candidate")
   modelStates   ModelState[]
   modelSubmissions ModelSubmission[]
+  teamsCreated  Team[]
+  teamMembers   TeamMember[]
+  teamCells     TeamCell[]
 }
 
 model PracticeState {
@@ -199,4 +202,62 @@ model ModelSubmission {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, slug])
+}
+
+// Team solving (src/lib/teams): several people build one model task, each owning a part.
+model Team {
+  id          String       @id @default(cuid())
+  slug        String // model task
+  name        String
+  createdById String
+  createdAt   DateTime     @default(now())
+  deadline    DateTime
+  finalizedAt DateTime?
+  teamScore   Float? // the whole joined-up model, 0 to 1
+  result      String? // JSON TeamResult summary, written once at finalize
+  createdBy   User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  members     TeamMember[]
+  parts       TeamPart[]
+  cells       TeamCell[]
+
+  @@index([slug, finalizedAt])
+}
+
+model TeamMember {
+  teamId       String
+  userId       String
+  joinedAt     DateTime @default(now())
+  ready        Boolean  @default(false)
+  points       Int      @default(0)
+  contribution Float    @default(0) // share of the task's checked points this person wrote, 0 to 1
+  credited     Boolean  @default(false) // earned points on this task; a person is credited once per task
+  team         Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, userId])
+  @@index([userId])
+}
+
+model TeamPart {
+  teamId      String
+  key         String
+  claimedById String?
+  claimedAt   DateTime?
+  lastEditAt  DateTime?
+  score       Float? // graded on its own at finalize
+  team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, key])
+}
+
+model TeamCell {
+  teamId    String
+  addr      String
+  value     String
+  authorId  String
+  updatedAt DateTime @updatedAt
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, addr])
 }

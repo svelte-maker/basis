@@ -33,15 +33,20 @@ export async function ratingHistory(userId: string) {
 export async function getProfile(handle: string) {
   const user = await db.user.findUnique({ where: { handle } });
   if (!user) return null;
-  const [all, tracks, history, entries, posts, solvedCount] = await Promise.all([
+  const [all, tracks, history, entries, posts, solvedCount, teams] = await Promise.all([
     allMemberRatings(),
     trackBreakdown(user.id),
     ratingHistory(user.id),
     db.contestEntry.findMany({ where: { userId: user.id, rank: { not: null } }, include: { contest: { include: { _count: { select: { entries: { where: { rank: { not: null } } } } } } } }, orderBy: { contest: { endsAt: "desc" } } }),
     db.post.findMany({ where: { authorId: user.id }, orderBy: { createdAt: "desc" }, take: 10, include: { _count: { select: { comments: true } } } }),
     db.practiceState.count({ where: { userId: user.id, everSolved: true } }),
+    db.teamMember.findMany({
+      where: { userId: user.id, team: { finalizedAt: { not: null } } },
+      include: { team: { select: { id: true, slug: true, finalizedAt: true, teamScore: true, result: true, _count: { select: { members: true } } } } },
+      orderBy: { team: { finalizedAt: "desc" } }, take: 20,
+    }),
   ]);
   const r = ratingOf(user);
   const best = entries.reduce<(typeof entries)[number] | null>((b, e) => (!b || e.rank! / e.contest._count.entries < b.rank! / b.contest._count.entries ? e : b), null);
-  return { user, r, top: topPercent(r.rating, all), tracks, history, entries, posts, solvedCount, best };
+  return { user, r, top: topPercent(r.rating, all), tracks, history, entries, posts, solvedCount, best, teams };
 }
