@@ -52,3 +52,7 @@ Don't seed demo data into production: the demo members are fictional and recruit
 - `src/lib/contestScoring.ts` — contest points and ranking
 - `src/lib/services/` — database logic for practice, contests, profiles and candidate search
 - `src/app/` — pages and server actions
+
+## The team
+
+Basis is grown by a team of scheduled Claude agents (problem author, product engineer, QA, growth marketer, community manager, chief of staff). Their charters and shared rules are in [`agents/`](agents/README.md), priorities in [`ROADMAP.md`](ROADMAP.md), and marketing drafts in [`growth/`](growth/). Agents work through pull requests and drafts; nothing merges or gets posted publicly without the owner's approval.
