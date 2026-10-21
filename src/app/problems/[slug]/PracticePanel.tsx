@@ -2,11 +2,12 @@
 import Link from "next/link";
 import { useActionState, useState, useTransition } from "react";
 import { submitPracticeAction, revealAction, newVariantAction, type PracticeResponse } from "../../actions/practice";
-import { RichText } from "@/components/RichText";
+import { WorkedSolution } from "@/components/WorkedSolution";
+import type { Solution } from "@/lib/problems";
 
-export function PracticePanel({ slug, unit, loggedIn, initiallySolved, initialSolution }: { slug: string; unit: string; loggedIn: boolean; initiallySolved: boolean; initialSolution: string[] | null }) {
+export function PracticePanel({ slug, unit, loggedIn, initiallySolved, initialSolution }: { slug: string; unit: string; loggedIn: boolean; initiallySolved: boolean; initialSolution: Solution | null }) {
   const [state, action, pending] = useActionState<PracticeResponse | undefined, FormData>(submitPracticeAction.bind(null, slug), undefined);
-  const [revealed, setRevealed] = useState<string[] | null>(initialSolution);
+  const [revealed, setRevealed] = useState<Solution | null>(initialSolution);
   const [confirming, setConfirming] = useState(false);
   const [busy, start] = useTransition();
   const solution = state?.solution ?? revealed;
@@ -48,12 +49,7 @@ export function PracticePanel({ slug, unit, loggedIn, initiallySolved, initialSo
         )}
         {(solved || solution) && <button type="button" className="btn ghost" disabled={busy} onClick={() => start(async () => { await newVariantAction(slug); setRevealed(null); location.reload(); })}>Try new numbers</button>}
       </div>
-      {solution && (
-        <div className="solution">
-          <span className="eyebrow">Worked solution</span>
-          {solution.map((line, i) => <p key={i}><RichText text={line} /></p>)}
-        </div>
-      )}
+      {solution && <WorkedSolution solution={solution} />}
     </div>
   );
 }
