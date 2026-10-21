@@ -1,0 +1,166 @@
+// Local development uses SQLite. For production, change provider to "postgresql"
+// and set DATABASE_URL to a Neon or Supabase connection string.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id             String   @id @default(cuid())
+  handle         String   @unique
+  name           String
+  email          String   @unique
+  passwordHash   String
+  role           String   @default("MEMBER") // MEMBER | RECRUITER | ADMIN
+  headline       String   @default("")
+  location       String   @default("")
+  bio            String   @default("")
+  company        String   @default("") // recruiters
+  openToWork     Boolean  @default(true)
+  credentialId   String   @unique
+  glickoRating   Float    @default(1200)
+  glickoRd       Float    @default(350)
+  glickoVol      Float    @default(0.06)
+  practicePoints Int      @default(0)
+  ratedContests  Int      @default(0)
+  createdAt      DateTime @default(now())
+
+  practice     PracticeState[]
+  submissions  Submission[]
+  ratingEvents RatingEvent[]
+  entries      ContestEntry[]
+  posts        Post[]
+  comments     Comment[]
+  votes        Vote[]
+  shortlisted  Shortlist[]     @relation("recruiter")
+  shortlistedBy Shortlist[]    @relation("candidate")
+}
+
+model PracticeState {
+  id        String    @id @default(cuid())
+  userId    String
+  slug      String
+  variant   Int       @default(0)
+  attempts  Int       @default(0)
+  solved    Boolean   @default(false)
+  revealed  Boolean   @default(false) // solution viewed before solving: no points for this variant
+  everSolved Boolean  @default(false)
+  solvedAt  DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, slug])
+}
+
+model Submission {
+  id        String   @id @default(cuid())
+  userId    String
+  slug      String
+  seed      String
+  input     String
+  correct   Boolean
+  contestId String?
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  contest   Contest? @relation(fields: [contestId], references: [id], onDelete: Cascade)
+
+  @@index([userId, slug])
+  @@index([contestId, userId])
+}
+
+model RatingEvent {
+  id          String   @id @default(cuid())
+  userId      String
+  kind        String // contest | practice
+  delta       Int
+  ratingAfter Int
+  note        String
+  contestId   String?
+  createdAt   DateTime @default(now())
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+}
+
+model Contest {
+  id           String    @id @default(cuid())
+  slug         String    @unique
+  title        String
+  description  String    @default("")
+  startsAt     DateTime
+  endsAt       DateTime
+  rated        Boolean   @default(true)
+  problemSlugs String // JSON array of template slugs
+  finalizedAt  DateTime?
+  createdAt    DateTime  @default(now())
+
+  entries     ContestEntry[]
+  submissions Submission[]
+}
+
+model ContestEntry {
+  id           String   @id @default(cuid())
+  contestId    String
+  userId       String
+  registeredAt DateTime @default(now())
+  score        Int      @default(0)
+  solvedCount  Int      @default(0)
+  lastSolveMin Int      @default(0)
+  rank         Int?
+  ratingBefore Int?
+  ratingAfter  Int?
+  contest      Contest  @relation(fields: [contestId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([contestId, userId])
+}
+
+model Post {
+  id        String    @id @default(cuid())
+  authorId  String
+  kind      String // Model | Case write-up | Research | Question
+  track     String    @default("")
+  title     String
+  body      String
+  link      String    @default("")
+  score     Int       @default(0)
+  createdAt DateTime  @default(now())
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  comments  Comment[]
+  votes     Vote[]
+
+  @@index([createdAt])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  postId    String
+  authorId  String
+  body      String
+  createdAt DateTime @default(now())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model Vote {
+  userId String
+  postId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@id([userId, postId])
+}
+
+model Shortlist {
+  recruiterId String
+  candidateId String
+  note        String   @default("")
+  createdAt   DateTime @default(now())
+  recruiter   User     @relation("recruiter", fields: [recruiterId], references: [id], onDelete: Cascade)
+  candidate   User     @relation("candidate", fields: [candidateId], references: [id], onDelete: Cascade)
+
+  @@id([recruiterId, candidateId])
+}
