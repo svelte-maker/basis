@@ -38,6 +38,8 @@ model User {
   votes        Vote[]
   shortlisted  Shortlist[]     @relation("recruiter")
   shortlistedBy Shortlist[]    @relation("candidate")
+  modelStates   ModelState[]
+  modelSubmissions ModelSubmission[]
 }
 
 model PracticeState {
@@ -163,4 +165,38 @@ model Shortlist {
   candidate   User     @relation("candidate", fields: [candidateId], references: [id], onDelete: Cascade)
 
   @@id([recruiterId, candidateId])
+}
+
+// Spreadsheet model tasks (src/lib/models). One row per person per task, like PracticeState,
+// plus the work in progress so a long model survives a refresh.
+model ModelState {
+  id         String    @id @default(cuid())
+  userId     String
+  slug       String
+  variant    Int       @default(0)
+  draft      String    @default("{}") // JSON: address -> what they typed
+  attempts   Int       @default(0)
+  bestScore  Float     @default(0)
+  solved     Boolean   @default(false)
+  revealed   Boolean   @default(false) // answer model viewed before solving: no points for this variant
+  everSolved Boolean   @default(false)
+  solvedAt   DateTime?
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, slug])
+}
+
+model ModelSubmission {
+  id        String   @id @default(cuid())
+  userId    String
+  slug      String
+  seed      String
+  cells     String // JSON: address -> what they typed
+  score     Float // share of graded points earned, 0 to 1
+  report    String // JSON GradeReport
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, slug])
 }

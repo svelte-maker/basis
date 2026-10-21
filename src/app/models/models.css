@@ -1,0 +1,43 @@
+/* Model tasks: the spreadsheet grid and its surroundings. Inputs are blue and formulas black, the banking convention. */
+.sheet-wrap { display: grid; gap: 0; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.formula-bar { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-bottom: 1px solid var(--line); background: var(--surface); }
+.formula-bar .addr { min-width: 70px; font-size: 13px; color: var(--muted); padding: 4px 8px; border: 1px solid var(--line); border-radius: 5px; text-align: center; }
+.formula-bar .fx { font-family: var(--mono); font-style: italic; color: var(--muted); font-size: 13px; }
+.formula-bar input { flex: 1; font-family: var(--mono); font-size: 13.5px; padding: 5px 8px; }
+.sheet-status { padding: 5px 10px; min-height: 30px; border-bottom: 1px solid var(--line); background: var(--bg); }
+.sheet-status .bad, .checks .bad { color: var(--bad); }
+.sheet-status .good { color: var(--good); }
+.sheet-scroll { overflow: auto; max-height: 70vh; outline: none; }
+.sheet-scroll:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+table.sheet { border-collapse: separate; border-spacing: 0; table-layout: fixed; font-size: 13px; user-select: none; }
+table.sheet th { position: sticky; top: 0; z-index: 2; background: var(--sunken); color: var(--muted); font-family: var(--mono); font-weight: 500; font-size: 11px; height: 24px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+table.sheet tbody th { position: sticky; left: 0; z-index: 1; text-align: center; }
+table.sheet thead th:first-child { left: 0; z-index: 3; }
+table.sheet th.hl { color: var(--accent); background: var(--accent-soft); }
+table.sheet td { height: 26px; padding: 0 6px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: cell; position: relative; }
+table.sheet td.n { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+table.sheet td.k-head { font-weight: 600; background: var(--bg); }
+table.sheet td.k-label { color: var(--ink); }
+table.sheet td.k-note { color: var(--muted); font-style: italic; }
+table.sheet td.k-input { color: #1F4FD1; }
+table.sheet td.k-calc { background: color-mix(in srgb, var(--warn) 9%, var(--surface)); }
+table.sheet td.err { color: var(--bad); }
+table.sheet td.in { background: color-mix(in srgb, var(--accent) 12%, transparent); }
+table.sheet td.sel { outline: 2px solid var(--accent); outline-offset: -2px; z-index: 1; }
+table.sheet td.ok { box-shadow: inset 3px 0 0 var(--good); }
+table.sheet td.bad { box-shadow: inset 3px 0 0 var(--bad); }
+table.sheet td .cell-input { position: absolute; inset: 0; width: 100%; height: 100%; border: none; border-radius: 0; padding: 0 6px; font-family: var(--mono); font-size: 13px; background: var(--surface); outline: 2px solid var(--accent); outline-offset: -2px; }
+@media (prefers-color-scheme: dark) { table.sheet td.k-input { color: #7FA6FF; } }
+
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; }
+.seg button { all: unset; cursor: pointer; padding: 4px 12px; font-size: 13px; color: var(--muted); }
+.seg button.on { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+
+.checks { list-style: none; margin: 0; padding: 0; }
+.checks li button { all: unset; box-sizing: border-box; cursor: pointer; width: 100%; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 9px 16px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.checks li button:hover { background: var(--bg); }
+.checks li button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+.tick.miss { background: var(--bad); border-color: var(--bad); }
+.chip.fn { font-family: var(--mono); font-size: 11px; }
+.steps { margin: 0; padding-left: 20px; display: grid; gap: 4px; }
+.statement code, .solution code { font-family: var(--mono); font-size: 12.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 0 4px; overflow-wrap: anywhere; }

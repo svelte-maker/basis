@@ -16,6 +16,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const user = await getCurrentUser();
   const links = [
     { href: "/problems", label: "Problems" },
+    { href: "/models", label: "Models" },
     { href: "/contests", label: "Contests" },
     { href: "/leaderboard", label: "Leaderboard" },
     { href: "/community", label: "Community" },
