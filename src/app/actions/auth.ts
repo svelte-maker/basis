@@ -25,8 +25,11 @@ export async function signup(_: FormState, form: FormData): Promise<FormState> {
   if (d.role === "RECRUITER" && !d.company) return { error: "Recruiters need to enter their company." };
   const clash = await db.user.findFirst({ where: { OR: [{ email: d.email }, { handle: d.handle }] } });
   if (clash) return { error: clash.email === d.email ? "An account with that email already exists. Log in instead." : "That handle is taken. Try another." };
+  // Emails listed in ADMIN_EMAILS (comma-separated) become admins when they sign up
+  const admins = (process.env.ADMIN_EMAILS ?? "").split(",").map((e) => e.trim().toLowerCase()).filter(Boolean);
+  const role = admins.includes(d.email) ? "ADMIN" : d.role;
   const user = await db.user.create({
-    data: { name: d.name, handle: d.handle, email: d.email, passwordHash: await hashPassword(d.password), role: d.role, company: d.company ?? "", credentialId: newCredentialId(), openToWork: d.role === "MEMBER" },
+    data: { name: d.name, handle: d.handle, email: d.email, passwordHash: await hashPassword(d.password), role, company: d.company ?? "", credentialId: newCredentialId(), openToWork: d.role === "MEMBER" },
   });
   await startSession(user.id);
   redirect(d.role === "RECRUITER" ? "/recruiters" : safeNext(form.get("next")));

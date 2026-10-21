@@ -48,6 +48,11 @@ const PEOPLE: [string, string, string, string, number][] = [
 ];
 
 async function main() {
+  // The seed wipes every table and creates fictional members. Never run it against a real database by accident.
+  if (process.env.ALLOW_DEMO_SEED !== "yes") {
+    console.error("Refusing to seed: this deletes all data and adds fictional demo members. Set ALLOW_DEMO_SEED=yes to run it on a local or demo database.");
+    process.exit(1);
+  }
   await db.$transaction([db.vote.deleteMany(), db.comment.deleteMany(), db.post.deleteMany(), db.shortlist.deleteMany(), db.submission.deleteMany(), db.contestEntry.deleteMany(), db.contest.deleteMany(), db.ratingEvent.deleteMany(), db.practiceState.deleteMany(), db.user.deleteMany()]);
   const passwordHash = await bcrypt.hash("basis-demo", 10);
 

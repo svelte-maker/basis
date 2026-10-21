@@ -18,9 +18,9 @@ A rating platform for finance skill. Members solve auto-graded finance problems,
 
 ```bash
 npm install
-cp .env.example .env          # then set AUTH_SECRET to a long random string
-npm run db:push               # creates the SQLite database
-npm run db:seed               # demo members, contests and posts
+cp .env.example .env          # set DATABASE_URL (any Postgres) and AUTH_SECRET
+npm run db:push               # creates the tables
+ALLOW_DEMO_SEED=yes npm run db:seed   # optional: fictional demo members, contests and posts (wipes the database)
 npm run dev                   # http://localhost:3000
 ```
 
@@ -37,10 +37,12 @@ npm run test:e2e    # browser smoke test of the main flows (needs seeded data)
 
 ## Deploying
 
-1. Create a Postgres database (Neon or Supabase both have free tiers).
-2. In `prisma/schema.prisma`, change `provider = "sqlite"` to `provider = "postgresql"`.
-3. On Vercel, import the repo and set `DATABASE_URL` and `AUTH_SECRET`.
-4. Run `npx prisma db push` once against the production database, and optionally `npm run db:seed` for demo data.
+1. Create a Postgres database on Neon (free) and copy the direct connection string (connection pooling off).
+2. On Vercel, import the repo and set three environment variables: `DATABASE_URL`, `AUTH_SECRET` and `ADMIN_EMAILS` (your email).
+3. Deploy. The build creates or updates the tables automatically (`prisma db push`).
+4. Sign up with the admin email, then schedule the first contest at `/admin`.
+
+Don't seed demo data into production: the demo members are fictional and recruiters would see them.
 
 ## Code map
 
