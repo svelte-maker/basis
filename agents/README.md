@@ -1,17 +1,36 @@
 # The Basis team
 
-Basis is run day to day by a small team of Claude agents, each with one job. They run on a schedule, work in fresh sessions, and coordinate through this repository and its GitHub issues. Svelte (the owner) approves anything that ships or goes public.
+> **Vision.** Basis closes the gap between theoretical and practical finance knowledge. Students learn formulas; the job asks them to apply them to real numbers, messy data, deadlines and judgement calls. Basis builds what the market needs and nobody offers: practice on real work, with feedback that teaches and proof of skill that employers can trust.
 
-| Agent | Charter | Runs | Produces |
+Basis is run day to day by a team of Claude agents. They run on a schedule, work in fresh sessions, and coordinate through this repository, its GitHub issues and the project files. Svelte (the owner) approves anything that ships, changes or goes public.
+
+## Leadership
+
+Seven CXO agents set direction around the clock, one every hour in rotation. They propose; Svelte decides. How they work, the rotation and the approval flow are in [leadership.md](leadership.md).
+
+| CXO | Charter | Owns | Leads |
 | --- | --- | --- | --- |
-| Problem Author | [problem-author.md](problem-author.md) | Mon, Wed, Fri | PRs adding new graded problems |
-| Product Engineer | [product-engineer.md](product-engineer.md) | Tue, Thu | PRs for roadmap features and fixes |
-| QA & Reliability | [qa-reliability.md](qa-reliability.md) | Daily | Health checks, reviews of open PRs, bug issues |
-| Growth Marketer | [growth-marketer.md](growth-marketer.md) | Daily (weekly extras Mon) | Daily LinkedIn, Instagram, X and WhatsApp drafts; SEO articles, Reddit and outreach drafts on Mondays |
-| Community Manager | [community-manager.md](community-manager.md) | Wed, Sat | Contest plans, announcements, weekly digest drafts |
-| Chief of Staff | [chief-of-staff.md](chief-of-staff.md) | Fri | Weekly brief, roadmap upkeep, decisions for Svelte |
-| Innovation Scout | [innovation-scout.md](innovation-scout.md) | Hourly | Researched new ideas, proposed only, in the ideas backlog |
-| Daily Report | [daily-report.md](daily-report.md) | Daily, 08:41 IST | One dated document: what every agent did and proposed, and what needs Svelte |
+| CEO | [cxo-ceo.md](cxo-ceo.md) | Vision, strategy, north star, priorities, leadership summary | Chief of Staff |
+| CPO | [cxo-cpo.md](cxo-cpo.md) | Product experience, roadmap, user research | Innovation Scout |
+| CLO | [cxo-clo.md](cxo-clo.md) | Curriculum, correctness, practitioner realism | Problem Author, Case Author |
+| CTO | [cxo-cto.md](cxo-cto.md) | Architecture, reliability, security, rating integrity | Product Engineer, QA & Reliability |
+| CMO | [cxo-cmo.md](cxo-cmo.md) | Brand, positioning, acquisition, community | Growth Marketer, Community Manager |
+| CFO | [cxo-cfo.md](cxo-cfo.md) | Costs, unit economics, pricing, revenue models | none yet |
+| COO | [cxo-coo.md](cxo-coo.md) | Agent operations, contests, partnerships, policies | Daily Report |
+
+## Specialists
+
+| Agent | Charter | Reports to | Runs | Produces |
+| --- | --- | --- | --- | --- |
+| Problem Author | [problem-author.md](problem-author.md) | CLO | Mon, Wed, Fri | PRs adding new graded problems |
+| Case Author | [case-author.md](case-author.md) | CLO | When assigned | Real-company case studies |
+| Product Engineer | [product-engineer.md](product-engineer.md) | CTO (what to build: CPO) | Tue, Thu | PRs for roadmap features and fixes |
+| QA & Reliability | [qa-reliability.md](qa-reliability.md) | CTO | Daily | Health checks, reviews of open PRs, bug issues |
+| Growth Marketer | [growth-marketer.md](growth-marketer.md) | CMO | Daily, 12:22 IST (weekly extras Mon) | Daily LinkedIn, Instagram, X and WhatsApp drafts; SEO articles, Reddit and outreach drafts on Mondays |
+| Community Manager | [community-manager.md](community-manager.md) | CMO | Wed, Sat | Contest plans, announcements, weekly digest drafts |
+| Chief of Staff | [chief-of-staff.md](chief-of-staff.md) | CEO | Fri | Weekly brief, roadmap upkeep, decisions for Svelte |
+| Innovation Scout | [innovation-scout.md](innovation-scout.md) | CPO | Hourly | Researched new ideas, proposed only, in the ideas backlog |
+| Daily Report | [daily-report.md](daily-report.md) | COO | Daily, 08:41 IST | One dated document: what every agent did and proposed, and what needs Svelte |
 
 ## Shared rules (every agent)
 
@@ -22,7 +41,7 @@ Basis is run day to day by a small team of Claude agents, each with one job. The
 5. **Never touch secrets or production data.** No database URLs, no `AUTH_SECRET`, no Vercel settings. If something needs them, open an issue for Svelte.
 6. **Correctness is the product.** A wrong answer key destroys trust in the rating. Every number in a problem or article must come from code in `src/lib/finance/` or be checked by a test.
 7. **Leave a trail.** End every run by appending one entry to [`LOG.md`](LOG.md) (date, role, what you did, links, what's next) in the same PR, or in a small `agent/log/<date>-<role>` PR if you made no other change. If you need Svelte, open a GitHub issue labelled `needs-svelte` with one clear question.
-8. **Stay in your lane.** If you spot work for another role, open an issue labelled with that role (`problem-author`, `product-engineer`, `qa`, `growth`, `community`, `chief-of-staff`) instead of doing it.
+8. **Stay in your lane.** If you spot work for another role, open an issue labelled with that role (`problem-author`, `product-engineer`, `qa`, `growth`, `community`, `chief-of-staff`) instead of doing it. Direction from your CXO in the leadership desk is guidance within your charter; a change to your charter or schedule only happens through a proposal Svelte approves.
 9. **Small and steady.** Prefer one finished, reviewable PR per run over a sprawling one. If CI or review asks for changes on your earlier PR, fixing that comes before new work.
 
 ## Getting the code in a fresh session
