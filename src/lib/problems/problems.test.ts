@@ -16,6 +16,26 @@ describe("every template", () => {
       }
     });
   }
+  for (const t of TEMPLATES) {
+    it(`${t.slug} has a worked solution that teaches`, () => {
+      const depth = { Easy: 1, Medium: 2, Hard: 3 }[t.difficulty];
+      for (let k = 0; k < 150; k++) {
+        const s = instantiate(t.slug, `test:${k}`).solution;
+        expect(s.idea.length, "idea").toBeGreaterThanOrEqual(t.difficulty === "Hard" ? 2 : 1);
+        expect(s.formulas.length, "formulas").toBeGreaterThanOrEqual(1);
+        expect(s.formulas.flatMap((f) => f.terms).length, "every formula's symbols explained").toBeGreaterThanOrEqual(2);
+        // A table counts as one step per row: an iteration log or schedule is several steps shown at once
+        const units = s.steps.reduce((n, b) => n + (b.kind === "p" ? 1 : b.rows.length), 0);
+        expect(units, "steps").toBeGreaterThanOrEqual(depth + 1);
+        expect(s.steps.some((b) => (b.kind === "p" ? b.text : JSON.stringify(b.rows)).includes("**")), "answer highlighted in steps").toBe(true);
+        expect(s.meaning.length, "meaning").toBeGreaterThanOrEqual(1);
+        expect(s.mistakes.length, "mistakes").toBeGreaterThanOrEqual(depth >= 2 ? 2 : 1);
+        expect(s.excel.length, "excel").toBeGreaterThanOrEqual(1);
+        expect(s.excel.join(" "), "excel formula").toMatch(/`=/);
+        if (t.difficulty === "Hard") expect(s.steps.some((b) => b.kind === "table"), "hard problems show a worked table").toBe(true);
+      }
+    });
+  }
   it("same seed gives same numbers, different users differ", () => {
     const a = instantiate("project-npv", practiceSeed("u1", "project-npv", 0));
     const b = instantiate("project-npv", practiceSeed("u1", "project-npv", 0));

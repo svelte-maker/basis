@@ -114,8 +114,19 @@ table.mini td:first-child, table.mini th:first-child { text-align: left; }
 .tick.done { background: var(--good); border-color: var(--good); }
 
 .statement { display: grid; gap: 10px; max-width: 70ch; }
-.solution { border-top: 1px dashed var(--line); padding-top: 14px; display: grid; gap: 6px; color: var(--muted); max-width: 70ch; }
+.solution { border-top: 1px dashed var(--line); padding-top: 14px; display: grid; gap: 18px; color: var(--muted); max-width: 76ch; }
 .solution strong { color: var(--ink); }
+.solution section { display: grid; gap: 8px; }
+.solution h3 { margin: 0; font-size: 14px; font-weight: 600; color: var(--ink); }
+.solution p, .solution ul { margin: 0; }
+.solution ul { padding-left: 20px; display: grid; gap: 6px; }
+.solution code { font-family: var(--mono); font-size: 12.5px; background: var(--bg); border: 1px solid var(--line); border-radius: 4px; padding: 1px 5px; color: var(--ink); overflow-wrap: anywhere; }
+.formula { border-left: 2px solid var(--accent); padding-left: 12px; display: grid; gap: 6px; }
+.formula .expr { font-family: var(--mono); font-size: 13.5px; color: var(--ink); overflow-wrap: anywhere; }
+.formula dl { margin: 0; display: grid; gap: 4px; font-size: 13.5px; }
+.formula dl div { display: grid; grid-template-columns: minmax(70px, max-content) 1fr; gap: 10px; }
+.formula dt { font-family: var(--mono); color: var(--ink); }
+.formula dd { margin: 0; }
 .answer-row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .answer-row input { width: 200px; font-family: var(--mono); }
 

@@ -1,10 +1,10 @@
 "use server";
 import { revalidatePath } from "next/cache";
 import { getCurrentUser } from "@/lib/auth";
-import { instantiate, practiceSeed } from "@/lib/problems";
+import { instantiate, practiceSeed, type Solution } from "@/lib/problems";
 import { newVariant, practiceState, revealSolution, submitPractice, type PracticeResult } from "@/lib/services/practice";
 
-export type PracticeResponse = (PracticeResult | { status: "login" }) & { solution?: string[] };
+export type PracticeResponse = (PracticeResult | { status: "login" }) & { solution?: Solution };
 
 async function solutionFor(userId: string, slug: string) {
   const s = await practiceState(userId, slug);
@@ -23,7 +23,7 @@ export async function submitPracticeAction(slug: string, _: PracticeResponse | u
   return res;
 }
 
-export async function revealAction(slug: string): Promise<string[] | null> {
+export async function revealAction(slug: string): Promise<Solution | null> {
   const user = await getCurrentUser();
   if (!user) return null;
   await revealSolution(user.id, slug);
