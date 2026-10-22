@@ -40,6 +40,8 @@ model User {
   shortlistedBy Shortlist[]    @relation("candidate")
   modelStates   ModelState[]
   modelSubmissions ModelSubmission[]
+  caseStates    CaseState[]
+  caseSubmissions CaseSubmission[]
 }
 
 model PracticeState {
@@ -195,6 +197,35 @@ model ModelSubmission {
   cells     String // JSON: address -> what they typed
   score     Float // share of graded points earned, 0 to 1
   report    String // JSON GradeReport
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, slug])
+}
+
+// Real-company case studies (src/lib/cases). One row per person per case; part progress is JSON keyed
+// by the part's stable key, so parts can be added to a case without a migration.
+model CaseState {
+  id            String    @id @default(cuid())
+  userId        String
+  slug          String
+  parts         String    @default("{}") // JSON: part key -> { attempts, solved, revealed, best, draft? }
+  completed     Boolean   @default(false)
+  everCompleted Boolean   @default(false)
+  completedAt   DateTime?
+  updatedAt     DateTime  @updatedAt
+  user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, slug])
+}
+
+model CaseSubmission {
+  id        String   @id @default(cuid())
+  userId    String
+  slug      String
+  part      String
+  input     String // JSON: what they submitted
+  score     Float // share of the part's points earned, 0 to 1
   createdAt DateTime @default(now())
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
