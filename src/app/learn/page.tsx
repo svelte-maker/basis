@@ -2,10 +2,12 @@ import Link from "next/link";
 import { glossary, LESSONS, lessonsIn, MODULES, ORDERED, readingMinutes } from "@/lib/learn";
 import { DoneCount, LessonTick } from "./LessonTick";
 import "./learn.css";
+import { canonical } from "@/lib/seo";
 
 export const metadata = {
   title: "Learn finance",
   description: "In-depth lessons on valuation, financial modelling, Excel, IPOs and FPOs, accounting, M&A, LBOs, bonds, derivatives, risk and credit. Every lesson ends in graded practice.",
+  ...canonical("/learn"),
 };
 
 export default function LearnPage() {

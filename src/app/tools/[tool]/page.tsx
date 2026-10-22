@@ -13,6 +13,7 @@ import Ratios from "../_tools/Ratios";
 import Risk from "../_tools/Risk";
 import { LearnLink } from "@/components/LearnLink";
 import { lessonsForTool } from "@/lib/learn";
+import { canonical } from "@/lib/seo";
 
 const COMPONENTS: Record<string, () => React.ReactElement> = { dcf: Dcf, lbo: Lbo, wacc: Wacc, comps: Comps, bond: Bond, options: Options, tvm: Tvm, loan: Loan, ratios: Ratios, risk: Risk };
 
@@ -22,7 +23,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ tool: string }> }) {
   const { tool } = await params;
-  return { title: TOOLS.find((t) => t.slug === tool)?.title ?? tool };
+  const t = TOOLS.find((x) => x.slug === tool);
+  return t ? { title: t.title, description: t.blurb, ...canonical(`/tools/${t.slug}`) } : { title: tool };
 }
 
 export default async function ToolPage({ params }: { params: Promise<{ tool: string }> }) {

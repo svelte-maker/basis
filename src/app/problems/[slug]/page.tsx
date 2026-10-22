@@ -8,10 +8,16 @@ import { Statement } from "@/components/Statement";
 import { PracticePanel } from "./PracticePanel";
 import { LearnLink } from "@/components/LearnLink";
 import { lessonsForProblem } from "@/lib/learn";
+import { canonical } from "@/lib/seo";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const t = getTemplate((await params).slug);
-  return { title: t?.title ?? "Problem" };
+  if (!t) return { title: "Problem" };
+  return {
+    title: t.title,
+    description: `A graded ${t.difficulty.toLowerCase()} ${t.track} problem with your own numbers and a worked solution.`,
+    ...canonical(`/problems/${t.slug}`),
+  };
 }
 
 export default async function ProblemPage({ params }: { params: Promise<{ slug: string }> }) {

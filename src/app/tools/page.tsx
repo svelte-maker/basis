@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { TOOLS } from "./registry";
+import { canonical } from "@/lib/seo";
 
-export const metadata = { title: "Tools" };
+export const metadata = { title: "Tools", ...canonical("/tools") };
 
 export default function ToolsPage() {
   return (

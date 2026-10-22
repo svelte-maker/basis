@@ -12,6 +12,7 @@ import { LessonBlocks } from "../LessonBlocks";
 import { Quiz } from "../Quiz";
 import "../../models/models.css";
 import "../learn.css";
+import { canonical } from "@/lib/seo";
 
 export function generateStaticParams() {
   return LESSONS.map((l) => ({ slug: l.slug }));
@@ -24,6 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: l.title,
     description: l.summary,
     openGraph: { title: l.title, description: l.summary, type: "article" },
+    ...canonical(`/learn/${l.slug}`),
   };
 }
 
