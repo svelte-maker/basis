@@ -5,8 +5,11 @@ import { getProfile } from "@/lib/services/profile";
 import { finalizeEndedContests } from "@/lib/services/contests";
 import { Grade } from "@/components/Grade";
 import { gradeLabel } from "@/lib/rating/grades";
+import { canonical } from "@/lib/seo";
 
-export const metadata = { title: "Verify a credential" };
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  return { title: "Verify a credential", ...canonical(`/verify/${(await params).id.toUpperCase()}`) };
+}
 export const dynamic = "force-dynamic";
 
 export default async function VerifyPage({ params }: { params: Promise<{ id: string }> }) {

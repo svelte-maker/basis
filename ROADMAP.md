@@ -4,11 +4,14 @@ Owned by the Chief of Staff agent; Svelte has the final say. Keep "Now" to five 
 
 ## Now
 
-1. **SEO basics.** `sitemap.xml` (include every `/learn` lesson and the glossary), `robots.txt`, canonical URLs, Open Graph images for problems, profiles, verify pages and lessons.
-2. **Learn: more lessons.** Extend `/learn` where the problem bank grows: three-statement modelling, deferred tax and leases, FP&A, swaps and FRAs, futures basis, stress testing, personal finance. Each lesson links to graded practice.
-3. **Automatic weekly contest.** A scheduled job (Vercel Cron hitting a protected route) that creates the next weekly contest from `growth/contest-calendar.md`, or from a balanced random draw of problems if the calendar is empty.
-4. **Share your rating.** A share card image and one-click "Add to LinkedIn" (certification URL pointing at `/verify/<id>`) on the profile page.
-5. **Daily problem and streaks.** One featured problem a day on the home page, with a streak counter on profiles.
+1. **Learn: more lessons.** Extend `/learn` where the problem bank grows: three-statement modelling, deferred tax and leases, FP&A, swaps and FRAs, futures basis, stress testing, personal finance. Each lesson links to graded practice.
+2. **Automatic weekly contest.** A scheduled job (Vercel Cron hitting a protected route) that creates the next weekly contest from `growth/contest-calendar.md`, or from a balanced random draw of problems if the calendar is empty.
+3. **Share your rating.** A share card image and one-click "Add to LinkedIn" (certification URL pointing at `/verify/<id>`) on the profile page.
+4. **Daily problem and streaks.** One featured problem a day on the home page, with a streak counter on profiles.
+
+## In review
+
+- **SEO basics** (agent/product-engineer/seo-basics): `sitemap.xml` with every lesson, the glossary, problems and tools; `robots.txt`; canonical URLs; Open Graph cards for problems, lessons, profiles and verify pages.
 
 ## Next
 

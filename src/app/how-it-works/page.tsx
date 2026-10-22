@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { GRADES, PRACTICE_BONUS_CAP, PROVISIONAL_RD } from "@/lib/rating/grades";
 import { PRACTICE_POINTS, CONTEST_POINTS } from "@/lib/problems";
+import { canonical } from "@/lib/seo";
 
-export const metadata = { title: "How ratings work" };
+export const metadata = { title: "How ratings work", ...canonical("/how-it-works") };
 
 export default function HowItWorks() {
   return (

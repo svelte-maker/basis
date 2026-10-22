@@ -5,8 +5,10 @@ import { TEMPLATES, TRACKS } from "@/lib/problems";
 import { phaseOf } from "@/lib/contestScoring";
 import { LocalTime } from "@/components/LocalTime";
 import { GRADES } from "@/lib/rating/grades";
+import { canonical } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
+export const metadata = canonical("/");
 
 export default async function Home() {
   const user = await getCurrentUser();
