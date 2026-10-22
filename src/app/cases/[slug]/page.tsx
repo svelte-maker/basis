@@ -7,6 +7,8 @@ import { caseState, isDone, parseProgress, revealOf, type PartReveal } from "@/l
 import { CaseWorkspace } from "./CaseWorkspace";
 import { CaseHeader, ExhibitView } from "../Exhibit";
 import { TeamPanel } from "../../teams/TeamPanel";
+import { LearnLink } from "@/components/LearnLink";
+import { lessonsForCase } from "@/lib/learn";
 import "../../models/models.css";
 import "../cases.css";
 
@@ -32,6 +34,7 @@ export default async function CasePage({ params }: { params: Promise<{ slug: str
     <div className="stack">
       <div className="row small"><Link href="/cases">← All case studies</Link></div>
       <CaseHeader c={c} finished={finished} />
+      <LearnLink lessons={lessonsForCase(slug)} />
 
       <div className="exhibits">{c.exhibits.map((e) => <ExhibitView key={e.key} c={c} e={e} />)}</div>
 

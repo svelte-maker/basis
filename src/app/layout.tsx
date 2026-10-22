@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await getCurrentUser();
   const links = [
+    { href: "/learn", label: "Learn" },
     { href: "/problems", label: "Problems" },
     { href: "/models", label: "Models" },
     { href: "/teams", label: "Teams" },
@@ -58,7 +59,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <main className="wrap">{children}</main>
         <footer className="footer"><div className="wrap row between">
           <span>Basis · a verified rating for finance skill</span>
-          <span className="row"><Link href="/how-it-works">How ratings work</Link><Link href="/tools">Tools</Link></span>
+          <span className="row"><Link href="/learn">Learn</Link><Link href="/learn/glossary">Glossary</Link><Link href="/how-it-works">How ratings work</Link><Link href="/tools">Tools</Link></span>
         </div></footer>
       </body>
     </html>

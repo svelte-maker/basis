@@ -6,6 +6,8 @@ import { getTemplate, instantiate, practiceSeed, PRACTICE_POINTS, TEMPLATES } fr
 import { practiceState } from "@/lib/services/practice";
 import { Statement } from "@/components/Statement";
 import { PracticePanel } from "./PracticePanel";
+import { LearnLink } from "@/components/LearnLink";
+import { lessonsForProblem } from "@/lib/learn";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const t = getTemplate((await params).slug);
@@ -40,6 +42,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ slug: 
         <Statement blocks={inst.blocks} question={inst.question} />
         <PracticePanel slug={slug} unit={inst.unit} loggedIn={!!user} initiallySolved={!!state?.solved} initialSolution={showSolution ? inst.solution : null} />
       </article>
+      <LearnLink lessons={lessonsForProblem(slug)} />
       <div className="row between small">
         <span className="muted">Answers are accepted within a small tolerance, so normal rounding is fine.</span>
         <Link href={`/problems/${nextT.slug}`}>Next: {nextT.title} →</Link>
