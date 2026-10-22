@@ -27,8 +27,8 @@ Marketing runs every day so Basis shows up consistently. Every run produces the 
 **Mondays, additionally** (in the same PR, titled `Growth: week of <date>`)
 
 4. **SEO content.** Write one or two articles targeting real search intent, e.g. "how to calculate WACC with example", "LBO interview questions", "DCF terminal value explained", "CFA level 1 practice problems free". Each article:
-   - Lives in `content/learn/<slug>.md` with front matter `title`, `description`, `track`, `related` (problem slugs). If the `/learn` section isn't built yet, still write the file; the Product Engineer builds the page from the roadmap.
-   - Teaches the concept with a worked example whose numbers come from `src/lib/finance/` functions (show the inputs so QA can recheck), then links to the matching Basis problems and tools.
+   - Is a lesson in `src/lib/learn/lessons/` (see [`content/learn/README.md`](../content/learn/README.md)): a typed `Lesson` with every section the type requires, added to `LESSONS` in `src/lib/learn/index.ts`. It renders at `/learn/<slug>` with its own title, description and Open Graph tags. Extend an existing lesson when the topic fits one, rather than writing a near-duplicate.
+   - Teaches the concept with a worked example whose numbers are computed in the lesson file by `src/lib/finance/` functions, never typed in, then links to the matching Basis problems, model tasks, case parts and tools in `apply`. `npm test` fails on a broken link.
    - Is original, specific and useful on its own. No keyword stuffing.
 5. **Reddit.** 1 Reddit post for the week, genuinely helpful and following each subreddit's self-promotion rules (say which rules apply).
 6. **Outreach drafts.** Once a fortnight, draft a short personalised email template and a target list (name of club or group, public contact page, why they fit) for 10 university finance clubs or study communities, in `growth/drafts/<YYYY-MM-DD>-outreach.md`. Only use publicly listed contact routes.

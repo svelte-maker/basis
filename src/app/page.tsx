@@ -53,6 +53,11 @@ export default async function Home() {
       </section>
 
       <section className="stack-sm">
+        <h2>Learn the theory, then use it</h2>
+        <p className="muted" style={{ maxWidth: "70ch" }}>In-depth lessons on valuation, modelling and Excel, IPOs and FPOs, accounting, M&amp;A, LBOs, bonds, derivatives, risk and credit. Each shows how the job is really done and ends in graded problems and real company cases. <Link href="/learn">Start learning</Link>.</p>
+      </section>
+
+      <section className="stack-sm">
         <h2>Free tools for the job</h2>
         <p className="muted">DCF, LBO, WACC, bond, options, loan, ratio, comps and portfolio risk calculators. <Link href="/tools">Open the tools</Link>.</p>
       </section>
