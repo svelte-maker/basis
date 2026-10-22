@@ -6,6 +6,7 @@ A rating platform for finance skill. Members solve auto-graded finance problems,
 
 | Area | What it does |
 | --- | --- |
+| Learn | 20 in-depth lessons across 10 modules, from the time value of money to IPOs and FPOs, DCF, LBOs, derivatives and credit. Each explains the idea, every formula and a worked example computed by the grading code, shows where textbook and real practice differ, and ends with a quiz, interview questions and links to the problems, model tasks and case parts that apply it. Live spreadsheets in lessons can be edited and rebuilt. Glossary at `/learn/glossary`. |
 | Problems | 47 problem templates across 8 tracks (Accounting, Corporate Finance, Valuation, Fixed Income, Derivatives, Private Equity, Portfolio & Risk, Banking & Credit). Each member gets their own randomized numbers, so answers can't be shared. Answers are checked on the server with a tolerance. |
 | Rating | Glicko-2 contest rating plus a practice bonus capped at 150. Grades use credit-rating letters; NR until a first rated contest. Method is published at `/how-it-works`. |
 | Contests | Scheduled, timed rounds. Points decay with time and wrong attempts. Live standings, automatic rating when a contest ends. Admins schedule contests at `/admin`. |
@@ -46,7 +47,8 @@ Don't seed demo data into production: the demo members are fictional and recruit
 
 ## Code map
 
-- `src/lib/finance/` — pure, tested finance formulas used by both the grader and the tools
+- `src/lib/finance/` — pure, tested finance formulas used by the grader, the tools and the lessons
+- `src/lib/learn/` — Learn lessons as typed data; see [`content/learn/README.md`](content/learn/README.md)
 - `src/lib/problems/` — problem templates, seeded RNG, answer parsing and grading
 - `src/lib/rating/` — Glicko-2 and grade bands
 - `src/lib/contestScoring.ts` — contest points and ranking
