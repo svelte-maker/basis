@@ -42,7 +42,7 @@ export async function getProfile(handle: string) {
     db.practiceState.count({ where: { userId: user.id, everSolved: true } }),
     db.teamMember.findMany({
       where: { userId: user.id, team: { finalizedAt: { not: null } } },
-      include: { team: { select: { id: true, slug: true, finalizedAt: true, teamScore: true, result: true, _count: { select: { members: true } } } } },
+      include: { team: { select: { id: true, kind: true, slug: true, finalizedAt: true, teamScore: true, result: true, _count: { select: { members: true } } } } },
       orderBy: { team: { finalizedAt: "desc" } }, take: 20,
     }),
   ]);

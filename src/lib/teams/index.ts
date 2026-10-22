@@ -1,6 +1,6 @@
 // Team solving: several people build one model, each owning a part. Pure logic, no database,
 // so the grading, credit split and claim rules are unit tested.
-import { gradeModel, type GradeReport } from "@/lib/models/grade";
+import { gradeModel, MAX_ENTRY, type GradeReport } from "@/lib/models/grade";
 import { MODEL_POINTS, type ModelInstance } from "@/lib/models";
 import type { Difficulty } from "@/lib/problems/types";
 import type { Raw } from "@/lib/sheets";
@@ -65,28 +65,73 @@ export function authorShares(inst: ModelInstance, part: PartSpec, cells: Record<
   return Object.fromEntries(Object.entries(counts).map(([u, k]) => [u, k / n]));
 }
 
-export type PartResult = { key: string; title: string; weight: number; value: number; report: GradeReport; shares: Record<string, number> };
+/** A part's own grade. `report` holds per-cell detail for spreadsheet parts. */
+export type PartScore = { score: number; earned: number; total: number; report?: GradeReport };
+
+/**
+ * Anything a team can split: a model task or a case study. Work is stored as address → text cells,
+ * and every address belongs to exactly one part, which is what makes credit checkable.
+ */
+export type TeamTask = {
+  kind: "model" | "case";
+  slug: string;
+  title: string;
+  difficulty: Difficulty;
+  /** Points one person earns for solving the task alone. The team shares this. */
+  pool: number;
+  parts: { key: string; title: string; blurb: string; weight: number }[];
+  /** The part an editable address belongs to; undefined for locked or unknown addresses. */
+  partOf: (addr: string) => string | undefined;
+  /** Whether a value is acceptable for an address (shape and size). */
+  accepts: (addr: string, value: string) => boolean;
+  gradePart: (key: string, cells: Record<string, TeamCell>) => PartScore;
+  /** Who wrote the part, as shares that add up to 1 (empty if nothing is written). */
+  shares: (key: string, cells: Record<string, TeamCell>) => Record<string, number>;
+  /** The whole task graded together, 0 to 1. */
+  integrated: (cells: Record<string, TeamCell>) => number;
+  /** Whether members may check a part before the team finishes. Only spreadsheet parts: a free check on a number or a choice gives the answer away. */
+  checkable: (key: string) => boolean;
+};
+
+const reportScore = (r: GradeReport): PartScore => ({ score: r.score, earned: r.earned, total: r.total, report: r });
+
+/** A model task as a team plays it. `inst` must be the team instance (see teamInstance). */
+export function modelTeamTask(meta: { slug: string; title: string; difficulty: Difficulty }, inst: ModelInstance, parts: PartSpec[]): TeamTask {
+  const byKey = new Map(parts.map((p) => [p.key, p]));
+  return {
+    kind: "model", ...meta, pool: MODEL_POINTS[meta.difficulty],
+    parts: parts.map((p) => ({ key: p.key, title: p.title, blurb: p.blurb, weight: gradedIn(inst, p).reduce((s, g) => s + g.points, 0) })),
+    partOf: (a) => {
+      const spec = inst.cells[a];
+      if (spec && spec.kind !== "calc") return undefined;
+      return partOfCell(parts, a)?.key;
+    },
+    accepts: (_a, v) => v.length <= MAX_ENTRY,
+    gradePart: (k, cells) => reportScore(gradePart(inst, byKey.get(k)!, cells)),
+    shares: (k, cells) => authorShares(inst, byKey.get(k)!, cells),
+    integrated: (cells) => gradeIntegrated(inst, cells).score,
+    checkable: () => true,
+  };
+}
+
+export type PartResult = { key: string; title: string; weight: number; value: number; report: PartScore; shares: Record<string, number> };
 export type MemberResult = { userId: string; eligible: boolean; reason?: string; raw: number; bonus: number; points: number; contribution: number };
-export type TeamResult = { pool: number; integrated: GradeReport; bonusEarned: boolean; parts: PartResult[]; members: MemberResult[] };
+export type TeamResult = { pool: number; integrated: { score: number }; bonusEarned: boolean; parts: PartResult[]; members: MemberResult[] };
 
 /**
  * Split the task's points across the team.
  * pool = the points one person earns for solving the task alone.
- * Each part is worth pool × (its checked points / all checked points). A part earns value × its own score,
- * split between the people who wrote its formula cells. If the joined-up model passes every check,
+ * Each part is worth pool × (its weight / all weights). A part earns value × its own score,
+ * split between the people who wrote it. If the whole task passes every check,
  * everyone's share grows by INTEGRATION_BONUS. Ineligible members are shown their contribution but earn nothing.
  */
-export function scoreTeam(
-  inst: ModelInstance, parts: PartSpec[], cells: Record<string, TeamCell>, difficulty: Difficulty,
-  members: { userId: string; ineligible?: string }[],
-): TeamResult {
-  const pool = MODEL_POINTS[difficulty];
-  const totalWeight = inst.graded.reduce((s, g) => s + g.points, 0);
-  const partResults = parts.map((p): PartResult => {
-    const weight = gradedIn(inst, p).reduce((s, g) => s + g.points, 0);
-    return { key: p.key, title: p.title, weight, value: totalWeight ? (pool * weight) / totalWeight : 0, report: gradePart(inst, p, cells), shares: authorShares(inst, p, cells) };
-  });
-  const integrated = gradeIntegrated(inst, cells);
+export function scoreTask(task: TeamTask, cells: Record<string, TeamCell>, members: { userId: string; ineligible?: string }[]): TeamResult {
+  const totalWeight = task.parts.reduce((s, p) => s + p.weight, 0);
+  const partResults = task.parts.map((p): PartResult => ({
+    key: p.key, title: p.title, weight: p.weight, value: totalWeight ? (task.pool * p.weight) / totalWeight : 0,
+    report: task.gradePart(p.key, cells), shares: task.shares(p.key, cells),
+  }));
+  const integrated = { score: task.integrated(cells) };
   const bonusEarned = integrated.score === 1;
   const memberResults = members.map((m): MemberResult => {
     let raw = 0, contribution = 0;
@@ -99,7 +144,15 @@ export function scoreTeam(
     const points = m.ineligible ? 0 : Math.round(raw + bonus);
     return { userId: m.userId, eligible: !m.ineligible, reason: m.ineligible, raw, bonus, points, contribution };
   });
-  return { pool, integrated, bonusEarned, parts: partResults, members: memberResults };
+  return { pool: task.pool, integrated, bonusEarned, parts: partResults, members: memberResults };
+}
+
+/** scoreTask for a model task given its instance and split. */
+export function scoreTeam(
+  inst: ModelInstance, parts: PartSpec[], cells: Record<string, TeamCell>, difficulty: Difficulty,
+  members: { userId: string; ineligible?: string }[],
+): TeamResult {
+  return scoreTask(modelTeamTask({ slug: "", title: "", difficulty }, inst, parts), cells, members);
 }
 
 export type ClaimState = { key: string; claimedById: string | null; activeAt: Date | null };

@@ -1,9 +1,11 @@
 import { describe, expect, it } from "vitest";
+import { CASES } from "@/lib/cases";
 import { referenceCells } from "@/lib/models/grade";
+import { answerAddr, caseTeamTask, cellAddr } from "./cases";
 import { evaluateSheet } from "@/lib/sheets";
 import { getModelTask, instantiateModel, MODEL_POINTS, MODEL_TASKS } from "@/lib/models";
 import {
-  authorShares, canClaim, gradeIntegrated, gradePart, ownerOf, partOfCell, scoreTeam, shouldFinalize, STALE_CLAIM_MS,
+  authorShares, canClaim, scoreTask, gradeIntegrated, gradePart, ownerOf, partOfCell, scoreTeam, shouldFinalize, STALE_CLAIM_MS,
   TEAM_SPLITS, teamInstance, type TeamCell,
 } from ".";
 
@@ -163,4 +165,65 @@ describe("claims", () => {
 
 it("every model task can be played as a team", () => {
   for (const t of MODEL_TASKS) expect(TEAM_SPLITS[t.slug], t.slug).toBeDefined();
+});
+
+describe("case teams", () => {
+  for (const c of CASES) {
+    const task = caseTeamTask(c);
+    const answers = (owner: (k: string) => string): Record<string, TeamCell> => {
+      const out: Record<string, TeamCell> = {};
+      for (const p of c.parts) {
+        if (p.kind === "numeric") out[answerAddr(p.key)] = { value: String(p.answer), authorId: owner(p.key) };
+        else if (p.kind === "choice") out[answerAddr(p.key)] = { value: String(p.correct), authorId: owner(p.key) };
+        else for (const [a, f] of Object.entries(p.model.answer)) out[cellAddr(p.key, a)] = { value: f, authorId: owner(p.key) };
+      }
+      return out;
+    };
+
+    it(`${c.slug}: every part is a claimable part worth its points, addressed only by its own key`, () => {
+      expect(task.parts.map((p) => p.key)).toEqual(c.parts.map((p) => p.key));
+      for (const p of c.parts) {
+        if (p.kind === "model") {
+          const calc = Object.keys(p.model.answer)[0];
+          expect(task.partOf(cellAddr(p.key, calc))).toBe(p.key);
+          expect(task.partOf(answerAddr(p.key))).toBeUndefined();
+          expect(task.checkable(p.key)).toBe(true);
+        } else {
+          expect(task.partOf(answerAddr(p.key))).toBe(p.key);
+          expect(task.partOf(cellAddr(p.key, "A1"))).toBeUndefined();
+          expect(task.checkable(p.key)).toBe(false);
+        }
+      }
+      expect(task.partOf("nope:ans")).toBeUndefined();
+    });
+
+    it(`${c.slug}: the reference answers split the pool exactly, with the bonus`, () => {
+      const owners = c.parts.map((_, i) => `u${i % 3}`);
+      const cells = answers((k) => owners[c.parts.findIndex((p) => p.key === k)]);
+      const r = scoreTask(task, cells, [{ userId: "u0" }, { userId: "u1" }, { userId: "u2" }]);
+      expect(r.bonusEarned).toBe(true);
+      for (const p of r.parts) expect(p.report.score, p.key).toBe(1);
+      expect(r.members.reduce((s, m) => s + m.raw, 0)).toBeCloseTo(task.pool, 6);
+    });
+
+    it(`${c.slug}: a wrong answer costs only its own part`, () => {
+      const cells = answers(() => "u0");
+      const first = c.parts.find((p) => p.kind !== "model")!;
+      cells[answerAddr(first.key)] = { value: first.kind === "choice" ? String((first.correct + 1) % first.options.length) : "123456789", authorId: "u1" };
+      const r = scoreTask(task, cells, [{ userId: "u0" }, { userId: "u1" }]);
+      expect(r.parts.find((p) => p.key === first.key)!.report.score).toBe(0);
+      expect(r.parts.filter((p) => p.key !== first.key).every((p) => p.report.score === 1)).toBe(true);
+      expect(r.members.find((m) => m.userId === "u1")!.points).toBe(0);
+      expect(r.bonusEarned).toBe(false);
+    });
+
+    it(`${c.slug}: answers must have the right shape`, () => {
+      const ch = c.parts.find((p) => p.kind === "choice");
+      if (ch && ch.kind === "choice") {
+        expect(task.accepts(answerAddr(ch.key), "0")).toBe(true);
+        expect(task.accepts(answerAddr(ch.key), String(ch.options.length))).toBe(false);
+        expect(task.accepts(answerAddr(ch.key), "x")).toBe(false);
+      }
+    });
+  }
 });

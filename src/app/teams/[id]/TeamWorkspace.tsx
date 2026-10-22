@@ -3,14 +3,17 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
 import type { Raw } from "@/lib/sheets";
 import type { PublicInstance } from "@/lib/models";
+import type { PublicCase, PublicPart } from "@/lib/cases";
 import type { CellResult, GradeReport } from "@/lib/models/grade";
 import type { TeamSnapshot } from "@/lib/services/teamView";
 import { CopyButton } from "@/components/CopyButton";
+import { LocalTime } from "@/components/LocalTime";
 import {
   checkPartAction, claimPartAction, joinTeamAction, leaveTeamAction, releasePartAction, saveTeamCellsAction, setReadyAction, teamSnapshotAction,
 } from "../../actions/teams";
 import { Spreadsheet, type Mark } from "../../models/Spreadsheet";
 import { ModelText } from "../../models/ModelText";
+import { SolutionView } from "../../cases/SolutionView";
 
 const POLL_MS = 5000;
 
@@ -27,10 +30,14 @@ function note(c: CellResult): string {
 
 const rowOf = (a: string) => Number(/\d+$/.exec(a)?.[0] ?? 0);
 const inRows = (rows: [number, number][], a: string) => { const r = rowOf(a); return rows.some(([f, t]) => r >= f && r <= t); };
+/** Case addresses carry their part: "q2:ans" or "q5!B7". */
+const caseKeyOf = (a: string) => /^([a-z0-9-]+)(?::ans$|!)/.exec(a)?.[1];
 const valuesOf = (cells: TeamSnapshot["cells"]): Raw => Object.fromEntries(Object.entries(cells).map(([a, c]) => [a, c.value]));
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 
-export function TeamWorkspace({ initial, inst, loggedIn, inviteUrl }: { initial: TeamSnapshot; inst: PublicInstance; loggedIn: boolean; inviteUrl: string }) {
+export function TeamWorkspace({ initial, inst, caseView, loggedIn, inviteUrl }: {
+  initial: TeamSnapshot; inst?: PublicInstance; caseView?: PublicCase; loggedIn: boolean; inviteUrl: string;
+}) {
   const [snap, setSnap] = useState(initial);
   const [entries, setEntries] = useState<Raw>(valuesOf(initial.cells));
   const pending = useRef<Record<string, string>>({});
@@ -52,7 +59,11 @@ export function TeamWorkspace({ initial, inst, loggedIn, inviteUrl }: { initial:
     setEntries(next);
   }, []);
 
-  const mine = useCallback((a: string) => live && snap.parts.some((p) => p.claimedById === me && inRows(p.rows, a)), [live, snap.parts, me]);
+  const mine = useCallback((a: string) => {
+    if (!live) return false;
+    const key = snap.kind === "case" ? caseKeyOf(a) : snap.parts.find((p) => inRows(p.rows, a))?.key;
+    return snap.parts.some((p) => p.key === key && p.claimedById === me);
+  }, [live, snap.parts, snap.kind, me]);
 
   function onEntries(next: Raw) {
     for (const a of new Set([...Object.keys(next), ...Object.keys(entries)])) {
@@ -95,13 +106,13 @@ export function TeamWorkspace({ initial, inst, loggedIn, inviteUrl }: { initial:
 
   const owners = useMemo(() => {
     const o: Record<string, { color: string; name: string }> = {};
-    for (const [a, s] of Object.entries(inst.cells)) {
+    for (const [a, s] of Object.entries(inst?.cells ?? {})) {
       if (s.kind !== "calc") continue;
       const p = snap.parts.find((x) => inRows(x.rows, a));
       if (p) o[a] = { color: p.color, name: `${p.title}: ${p.claimedById === me ? "your part" : p.claimedByName ? `${p.claimedByName}'s part` : "unclaimed"}` };
     }
     return o;
-  }, [inst.cells, snap.parts, me]);
+  }, [inst?.cells, snap.parts, me]);
 
   const marks = useMemo(() => {
     const m: Record<string, Mark> = {};
@@ -130,7 +141,7 @@ export function TeamWorkspace({ initial, inst, loggedIn, inviteUrl }: { initial:
 
       {result && (
         <section className="panel">
-          <div className="panel-head"><h3>Result</h3><span className="small muted">Whole model {pct(result.integrated.score)} {result.bonusEarned ? "· joined-up bonus earned" : ""}</span></div>
+          <div className="panel-head"><h3>Result</h3><span className="small muted">Whole {snap.kind === "case" ? "case" : "model"} {pct(result.integrated.score)} {result.bonusEarned ? "· joined-up bonus earned" : ""}</span></div>
           <div className="table-box"><table className="data">
             <thead><tr><th>Part</th><th>Written by</th><th className="r">Score</th><th className="r">Worth</th></tr></thead>
             <tbody>
@@ -168,7 +179,7 @@ export function TeamWorkspace({ initial, inst, loggedIn, inviteUrl }: { initial:
       <div className="split team-top">
         <section className="panel">
           <div className="panel-head"><h3>Parts</h3><span className="small muted">Claim a part, build it, check it</span></div>
-          <ul className="parts">
+          <ul className="tparts">
             {snap.parts.map((p) => {
               const r = checks[p.key];
               const isMine = p.claimedById === me;
@@ -187,7 +198,7 @@ export function TeamWorkspace({ initial, inst, loggedIn, inviteUrl }: { initial:
                         : p.claim.ok
                           ? <button type="button" className="btn small" disabled={busy} onClick={() => run(() => claimPartAction(snap.id, p.key))}>{p.claim.takeover ? "Take over" : "Claim"}</button>
                           : !p.claimedById && <span className="small muted" title={p.claim.reason}>{myClaims ? "Left for a teammate" : ""}</span>}
-                      <button type="button" className="btn ghost small" disabled={busy} onClick={() => start(async () => { const r = await checkPartAction(snap.id, p.key); if (r) setChecks((c) => ({ ...c, [p.key]: r })); })}>Check</button>
+                      {p.checkable && <button type="button" className="btn ghost small" disabled={busy} onClick={() => start(async () => { const r = await checkPartAction(snap.id, p.key); if (r) setChecks((c) => ({ ...c, [p.key]: r })); })}>Check</button>}
                     </div>
                   )}
                 </li>
@@ -198,7 +209,7 @@ export function TeamWorkspace({ initial, inst, loggedIn, inviteUrl }: { initial:
 
         <section className="panel">
           <div className="panel-head"><h3>Team</h3><span className="small muted">{snap.members.length}/{snap.parts.length}</span></div>
-          <ul className="parts">
+          <ul className="tparts">
             {snap.members.map((m) => (
               <li key={m.userId}>
                 <span className={`tick ${m.ready || snap.finalized ? "done" : ""}`}>{m.ready || snap.finalized ? "✓" : ""}</span>
@@ -216,45 +227,148 @@ export function TeamWorkspace({ initial, inst, loggedIn, inviteUrl }: { initial:
                 </button>
                 <CopyButton text={inviteUrl} label="Copy invite link" />
               </div>
-              <p className="small muted">The team is scored when everyone has marked done, or automatically on {new Date(snap.deadline).toLocaleDateString(undefined, { day: "numeric", month: "short" })}. Editing your cells takes back your &quot;done&quot;.</p>
+              <p className="small muted">The team is scored when everyone has marked done, or automatically at <LocalTime iso={snap.deadline} />. Editing your cells takes back your &quot;done&quot;.</p>
               {myClaims === 0 && <button type="button" className="btn quiet small" disabled={busy} onClick={() => run(() => leaveTeamAction(snap.id))}>Leave team</button>}
             </div>
           )}
         </section>
       </div>
 
-      <div className="row between">
-        <div className="row">
-          {snap.reveal && (
-            <span className="seg" role="group" aria-label="Which model to show">
-              <button type="button" className={view === "team" ? "on" : ""} onClick={() => setView("team")}>Team model</button>
-              <button type="button" className={view === "answer" ? "on" : ""} onClick={() => setView("answer")}>Answer model</button>
+      {caseView ? (
+        <CaseParts
+          c={caseView} snap={snap} entries={entries} onEntries={onEntries} mine={mine} checks={checks} live={live}
+          status={live ? (saved === "saving" ? "Saving…" : saved === "saved" ? "Saved. Teammates see it within seconds." : myClaims ? "You can answer the parts you hold." : "Claim a part to start.") : snap.finalized ? "This team has finished." : ""}
+        />
+      ) : inst && (
+        <>
+          <div className="row between">
+            <div className="row">
+              {snap.reveal && (
+                <span className="seg" role="group" aria-label="Which model to show">
+                  <button type="button" className={view === "team" ? "on" : ""} onClick={() => setView("team")}>Team model</button>
+                  <button type="button" className={view === "answer" ? "on" : ""} onClick={() => setView("answer")}>Answer model</button>
+                </span>
+              )}
+              <label className="check small"><input type="checkbox" checked={formulas} onChange={(e) => setFormulas(e.target.checked)} /> Show formulas</label>
+            </div>
+            <span className="small muted">
+              {live ? (saved === "saving" ? "Saving…" : saved === "saved" ? "Saved. Teammates see it within seconds." : myClaims ? "You can edit the cells of your parts." : "Claim a part to start editing.") : snap.finalized ? "This team has finished." : ""}
             </span>
+          </div>
+
+          <Spreadsheet
+            rows={inst.rows} cols={inst.cols} widths={inst.widths} cells={inst.cells}
+            entries={showingAnswer ? snap.reveal!.answer : entries}
+            onEntries={onEntries}
+            readOnly={!live || !!showingAnswer}
+            canEdit={mine}
+            owners={showingAnswer ? undefined : owners}
+            marks={showingAnswer ? undefined : marks}
+            showFormulas={formulas}
+          />
+
+          {snap.reveal && (
+            <div className="solution">
+              <span className="eyebrow">How the model works</span>
+              {snap.reveal.solution.map((line, i) => <p key={i}><ModelText text={line} /></p>)}
+            </div>
           )}
-          <label className="check small"><input type="checkbox" checked={formulas} onChange={(e) => setFormulas(e.target.checked)} /> Show formulas</label>
-        </div>
-        <span className="small muted">
-          {live ? (saved === "saving" ? "Saving…" : saved === "saved" ? "Saved. Teammates see it within seconds." : myClaims ? "You can edit the cells of your parts." : "Claim a part to start editing.") : snap.finalized ? "This team has finished." : ""}
-        </span>
-      </div>
-
-      <Spreadsheet
-        rows={inst.rows} cols={inst.cols} widths={inst.widths} cells={inst.cells}
-        entries={showingAnswer ? snap.reveal!.answer : entries}
-        onEntries={onEntries}
-        readOnly={!live || !!showingAnswer}
-        canEdit={mine}
-        owners={showingAnswer ? undefined : owners}
-        marks={showingAnswer ? undefined : marks}
-        showFormulas={formulas}
-      />
-
-      {snap.reveal && (
-        <div className="solution">
-          <span className="eyebrow">How the model works</span>
-          {snap.reveal.solution.map((line, i) => <p key={i}><ModelText text={line} /></p>)}
-        </div>
+        </>
       )}
     </div>
+  );
+}
+
+/** A case worked as a team: each part answered by whoever holds it, with answers and solutions once the team finishes. */
+function CaseParts({ c, snap, entries, onEntries, mine, checks, live, status }: {
+  c: PublicCase; snap: TeamSnapshot; entries: Raw; onEntries: (next: Raw) => void; mine: (a: string) => boolean;
+  checks: Record<string, GradeReport>; live: boolean; status: string;
+}) {
+  const set = (a: string, v: string) => { const next = { ...entries }; if (v.trim()) next[a] = v; else delete next[a]; onEntries(next); };
+  return (
+    <section className="panel case-parts">
+      <div className="panel-head"><h3>Answers</h3><span className="small muted">{status}</span></div>
+      <ol className="parts">
+        {c.parts.map((p, i) => <CasePartView key={p.key} p={p} n={i + 1} snap={snap} entries={entries} onEntries={onEntries} set={set} mine={mine} check={checks[p.key]} live={live} />)}
+      </ol>
+      <div className="card small muted" style={{ borderTop: "1px solid var(--line)" }}>
+        Number and multiple-choice answers are marked once, when the team finishes, so nobody can guess their way through. Model parts can be checked as you go.
+      </div>
+    </section>
+  );
+}
+
+function CasePartView({ p, n, snap, entries, onEntries, set, mine, check, live }: {
+  p: PublicPart; n: number; snap: TeamSnapshot; entries: Raw; onEntries: (next: Raw) => void; set: (a: string, v: string) => void;
+  mine: (a: string) => boolean; check?: GradeReport; live: boolean;
+}) {
+  const sp = snap.parts.find((x) => x.key === p.key)!;
+  const res = snap.result?.parts.find((x) => x.key === p.key);
+  const reveal = snap.caseReveals?.[p.key];
+  const ans = `${p.key}:ans`;
+  const editable = live && mine(p.kind === "model" ? `${p.key}!A1` : ans);
+  const owner = sp.claimedById === snap.me.userId ? "you" : sp.claimedByName ?? "unclaimed";
+  const prefix = `${p.key}!`;
+  const sub = useMemo(() => Object.fromEntries(Object.entries(entries).filter(([a]) => a.startsWith(prefix)).map(([a, v]) => [a.slice(prefix.length), v])), [entries, prefix]);
+  const marks = useMemo(() => {
+    if (!check) return undefined;
+    const m: Record<string, Mark> = {};
+    for (const x of check.cells) m[x.cell] = { ok: x.status === "ok", note: note(x) };
+    return m;
+  }, [check]);
+
+  return (
+    <li className="part" style={{ boxShadow: `inset 3px 0 0 ${sp.color}` }}>
+      <div className="part-head">
+        <span className={`part-n ${res ? (res.score === 1 ? "ok" : "") : ""}`}>{n}</span>
+        <span className="t">{p.title}</span>
+        <span className="small muted">{owner}{res ? ` · ${pct(res.score)}` : ""}</span>
+        <span className="small muted num">{p.points} pts</span>
+      </div>
+      <div className="part-body">
+        {p.prompt.map((t, i) => <p key={i}><ModelText text={t} /></p>)}
+        {p.kind === "numeric" && (
+          <div className="row">
+            <input value={entries[ans] ?? ""} onChange={(e) => set(ans, e.target.value)} disabled={!editable} inputMode="decimal" autoComplete="off" placeholder={editable ? "Your answer" : "Held by a teammate"} aria-label={`Answer to ${p.title}`} />
+            <span className="small muted">{p.unit}</span>
+          </div>
+        )}
+        {p.kind === "choice" && (
+          <div className="options" role="radiogroup" aria-label={p.title}>
+            {p.options.map((o, i) => (
+              <label key={i} className={`option ${reveal?.kind === "choice" && reveal.correct === i ? "right" : ""}`}>
+                <input type="radio" name={`team-opt-${p.key}`} disabled={!editable} checked={entries[ans] === String(i)} onChange={() => set(ans, String(i))} />
+                <span><ModelText text={o} /></span>
+              </label>
+            ))}
+          </div>
+        )}
+        {p.kind === "model" && (
+          <>
+            <Spreadsheet
+              rows={p.model.rows} cols={p.model.cols} widths={p.model.widths} cells={p.model.cells}
+              entries={reveal?.kind === "model" ? reveal.answer : sub}
+              onEntries={(next) => {
+                const all = Object.fromEntries(Object.entries(entries).filter(([a]) => !a.startsWith(prefix)));
+                for (const [a, v] of Object.entries(next)) all[prefix + a] = v;
+                onEntries(all);
+              }}
+              readOnly={!editable || !!reveal}
+              canEdit={(a) => mine(prefix + a)}
+              marks={reveal ? undefined : marks}
+            />
+            {check && <p className={`small ${check.score === 1 ? "good" : "bad"}`}>{check.earned}/{check.total} checks pass{check.score === 1 ? "." : ". Cells marked red need work."}</p>}
+            {reveal?.kind === "model" && <p className="small muted">Showing the answer model.</p>}
+          </>
+        )}
+        {reveal && (
+          <div className="solution">
+            {reveal.kind === "numeric" && <p className="answer-line">Answer: <strong className="num">{reveal.answer.toLocaleString("en-US", { maximumFractionDigits: 4 })}</strong> {reveal.unit}</p>}
+            {reveal.kind === "model" && reveal.notes.map((t, i) => <p key={i}><ModelText text={t} /></p>)}
+            <SolutionView s={reveal.solution} />
+          </div>
+        )}
+      </div>
+    </li>
   );
 }

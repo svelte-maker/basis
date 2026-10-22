@@ -209,7 +209,8 @@ model ModelSubmission {
 // Team solving (src/lib/teams): several people build one model task, each owning a part.
 model Team {
   id          String       @id @default(cuid())
-  slug        String // model task
+  kind        String       @default("model") // model | case
+  slug        String // model task or case study
   name        String
   createdById String
   createdAt   DateTime     @default(now())
@@ -222,7 +223,7 @@ model Team {
   parts       TeamPart[]
   cells       TeamCell[]
 
-  @@index([slug, finalizedAt])
+  @@index([kind, slug, finalizedAt])
 }
 
 model TeamMember {
