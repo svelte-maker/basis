@@ -38,6 +38,11 @@ model User {
   votes        Vote[]
   shortlisted  Shortlist[]     @relation("recruiter")
   shortlistedBy Shortlist[]    @relation("candidate")
+  modelStates   ModelState[]
+  modelSubmissions ModelSubmission[]
+  teamsCreated  Team[]
+  teamMembers   TeamMember[]
+  teamCells     TeamCell[]
 }
 
 model PracticeState {
@@ -163,4 +168,96 @@ model Shortlist {
   candidate   User     @relation("candidate", fields: [candidateId], references: [id], onDelete: Cascade)
 
   @@id([recruiterId, candidateId])
+}
+
+// Spreadsheet model tasks (src/lib/models). One row per person per task, like PracticeState,
+// plus the work in progress so a long model survives a refresh.
+model ModelState {
+  id         String    @id @default(cuid())
+  userId     String
+  slug       String
+  variant    Int       @default(0)
+  draft      String    @default("{}") // JSON: address -> what they typed
+  attempts   Int       @default(0)
+  bestScore  Float     @default(0)
+  solved     Boolean   @default(false)
+  revealed   Boolean   @default(false) // answer model viewed before solving: no points for this variant
+  everSolved Boolean   @default(false)
+  solvedAt   DateTime?
+  updatedAt  DateTime  @updatedAt
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, slug])
+}
+
+model ModelSubmission {
+  id        String   @id @default(cuid())
+  userId    String
+  slug      String
+  seed      String
+  cells     String // JSON: address -> what they typed
+  score     Float // share of graded points earned, 0 to 1
+  report    String // JSON GradeReport
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, slug])
+}
+
+// Team solving (src/lib/teams): several people build one model task, each owning a part.
+model Team {
+  id          String       @id @default(cuid())
+  slug        String // model task
+  name        String
+  createdById String
+  createdAt   DateTime     @default(now())
+  deadline    DateTime
+  finalizedAt DateTime?
+  teamScore   Float? // the whole joined-up model, 0 to 1
+  result      String? // JSON TeamResult summary, written once at finalize
+  createdBy   User         @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  members     TeamMember[]
+  parts       TeamPart[]
+  cells       TeamCell[]
+
+  @@index([slug, finalizedAt])
+}
+
+model TeamMember {
+  teamId       String
+  userId       String
+  joinedAt     DateTime @default(now())
+  ready        Boolean  @default(false)
+  points       Int      @default(0)
+  contribution Float    @default(0) // share of the task's checked points this person wrote, 0 to 1
+  credited     Boolean  @default(false) // earned points on this task; a person is credited once per task
+  team         Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, userId])
+  @@index([userId])
+}
+
+model TeamPart {
+  teamId      String
+  key         String
+  claimedById String?
+  claimedAt   DateTime?
+  lastEditAt  DateTime?
+  score       Float? // graded on its own at finalize
+  team        Team      @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, key])
+}
+
+model TeamCell {
+  teamId    String
+  addr      String
+  value     String
+  authorId  String
+  updatedAt DateTime @updatedAt
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@id([teamId, addr])
 }

@@ -8,6 +8,8 @@ import { RatingChart } from "@/components/RatingChart";
 import { CopyButton } from "@/components/CopyButton";
 import { GRADES } from "@/lib/rating/grades";
 import { headers } from "next/headers";
+import { getModelTask } from "@/lib/models";
+import { parseResult } from "@/lib/services/teams";
 
 export const dynamic = "force-dynamic";
 
@@ -94,6 +96,20 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
             {p.entries.map((e) => { const d = e.ratingAfter != null && e.ratingBefore != null ? e.ratingAfter - e.ratingBefore : null; return (
               <tr key={e.id}><td><Link href={`/contests/${e.contest.slug}`}>{e.contest.title}</Link></td><td className="r num">{e.rank} / {e.contest._count.entries}</td><td className="r num">{e.score}</td>
                 <td className="r num">{d == null ? "unrated" : <>{e.ratingAfter} <span style={{ color: d >= 0 ? "var(--good)" : "var(--bad)" }}>({d >= 0 ? "+" : ""}{d})</span></>}</td></tr>); })}
+          </tbody></table></div>
+        </section>
+      )}
+      {p.teams.length > 0 && (
+        <section className="stack-sm"><h2>Team builds</h2>
+          <p className="small muted">Models built with others. Each part was checked on its own, and the share shows how much of the model this person wrote.</p>
+          <div className="panel table-box"><table className="data"><thead><tr><th>Model</th><th>Parts built</th><th className="r">Share</th><th className="r">Team</th><th className="r">Points</th></tr></thead><tbody>
+            {p.teams.map((m) => {
+              const res = parseResult(m.team.result);
+              const built = res?.parts.filter((x) => (x.shares[user.id] ?? 0) > 0).map((x) => `${x.title} (${Math.round(x.score * 100)}%)`).join(", ");
+              return (
+                <tr key={m.teamId}><td><Link href={`/teams/${m.teamId}`}>{getModelTask(m.team.slug)?.title ?? m.team.slug}</Link></td><td className="small">{built || "—"}</td>
+                  <td className="r num">{Math.round(m.contribution * 100)}%</td><td className="r num">{m.team._count.members} people</td><td className="r num">+{m.points}</td></tr>);
+            })}
           </tbody></table></div>
         </section>
       )}
