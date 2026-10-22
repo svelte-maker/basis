@@ -4,8 +4,9 @@ import { ratingOf } from "@/lib/services/ratings";
 import { finalizeEndedContests } from "@/lib/services/contests";
 import { Grade } from "@/components/Grade";
 import { TRACKS, getTemplate } from "@/lib/problems";
+import { canonical } from "@/lib/seo";
 
-export const metadata = { title: "Leaderboard" };
+export const metadata = { title: "Leaderboard", ...canonical("/leaderboard") };
 export const dynamic = "force-dynamic";
 
 export default async function LeaderboardPage({ searchParams }: { searchParams: Promise<{ track?: string }> }) {

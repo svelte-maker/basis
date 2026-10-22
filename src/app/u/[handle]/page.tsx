@@ -9,11 +9,13 @@ import { CopyButton } from "@/components/CopyButton";
 import { GRADES } from "@/lib/rating/grades";
 import { headers } from "next/headers";
 import { parseResult, teamTaskInfo } from "@/lib/services/teams";
+import { canonical } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ handle: string }> }) {
-  return { title: (await params).handle };
+  const { handle } = await params;
+  return { title: handle, ...canonical(`/u/${handle}`) };
 }
 
 export default async function ProfilePage({ params }: { params: Promise<{ handle: string }> }) {

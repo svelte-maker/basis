@@ -6,10 +6,14 @@ import { NavLinks } from "@/components/NavLinks";
 import { Grade } from "@/components/Grade";
 import { ratingOf } from "@/lib/services/ratings";
 import { logout } from "./actions/auth";
+import { SITE_URL } from "@/lib/seo";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: "Basis: finance, rated", template: "%s · Basis" },
   description: "Solve finance problems, compete in rated contests and earn a verified rating recruiters trust.",
+  openGraph: { siteName: "Basis", type: "website" },
+  twitter: { card: "summary_large_image" },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

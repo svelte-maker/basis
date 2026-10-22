@@ -2,8 +2,9 @@ import Link from "next/link";
 import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { TEMPLATES, TRACKS, PRACTICE_POINTS } from "@/lib/problems";
+import { canonical } from "@/lib/seo";
 
-export const metadata = { title: "Problems" };
+export const metadata = { title: "Problems", ...canonical("/problems") };
 
 export default async function ProblemsPage({ searchParams }: { searchParams: Promise<{ track?: string; difficulty?: string; status?: string }> }) {
   const sp = await searchParams;

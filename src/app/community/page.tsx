@@ -7,8 +7,9 @@ import { TRACKS } from "@/lib/problems";
 import { toggleVote } from "../actions/community";
 import { POST_KINDS } from "@/lib/community";
 import { Composer } from "./Composer";
+import { canonical } from "@/lib/seo";
 
-export const metadata = { title: "Community" };
+export const metadata = { title: "Community", ...canonical("/community") };
 export const dynamic = "force-dynamic";
 
 function ago(d: Date) {
