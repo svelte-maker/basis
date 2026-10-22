@@ -12,12 +12,13 @@ import { Grade } from "@/components/Grade";
 import { ratingOf } from "@/lib/services/ratings";
 import { toggleRegistration } from "../../actions/contests";
 import { ContestAnswer } from "./ContestAnswer";
+import { canonical } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const c = await db.contest.findUnique({ where: { slug: (await params).slug } });
-  return { title: c?.title ?? "Contest" };
+  return c ? { title: c.title, ...canonical(`/contests/${c.slug}`) } : { title: "Contest" };
 }
 
 export default async function ContestPage({ params }: { params: Promise<{ slug: string }> }) {

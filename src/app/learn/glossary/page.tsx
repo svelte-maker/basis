@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { glossary, termId } from "@/lib/learn";
 import "../learn.css";
+import { canonical } from "@/lib/seo";
 
 export const metadata = {
   title: "Finance glossary",
   description: "Plain-English definitions of the finance terms used in valuation, accounting, IPOs, M&A, LBOs, bonds, derivatives, risk and credit, each linked to the lesson that teaches it.",
+  ...canonical("/learn/glossary"),
 };
 
 export default function GlossaryPage() {

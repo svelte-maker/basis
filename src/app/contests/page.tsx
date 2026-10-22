@@ -4,8 +4,9 @@ import { getCurrentUser } from "@/lib/auth";
 import { phaseOf } from "@/lib/contestScoring";
 import { contestProblems, finalizeEndedContests } from "@/lib/services/contests";
 import { LocalTime } from "@/components/LocalTime";
+import { canonical } from "@/lib/seo";
 
-export const metadata = { title: "Contests" };
+export const metadata = { title: "Contests", ...canonical("/contests") };
 export const dynamic = "force-dynamic";
 
 export default async function ContestsPage() {
