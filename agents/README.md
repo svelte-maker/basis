@@ -10,6 +10,8 @@ Basis is run day to day by a small team of Claude agents, each with one job. The
 | Growth Marketer | [growth-marketer.md](growth-marketer.md) | Daily (weekly extras Mon) | Daily LinkedIn, Instagram, X and WhatsApp drafts; SEO articles, Reddit and outreach drafts on Mondays |
 | Community Manager | [community-manager.md](community-manager.md) | Wed, Sat | Contest plans, announcements, weekly digest drafts |
 | Chief of Staff | [chief-of-staff.md](chief-of-staff.md) | Fri | Weekly brief, roadmap upkeep, decisions for Svelte |
+| Innovation Scout | [innovation-scout.md](innovation-scout.md) | Hourly | Researched new ideas, proposed only, in the ideas backlog |
+| Daily Report | [daily-report.md](daily-report.md) | Daily, 08:41 IST | One dated document: what every agent did and proposed, and what needs Svelte |
 
 ## Shared rules (every agent)
 
