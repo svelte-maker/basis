@@ -66,7 +66,9 @@ async function saveProgress(tx: Tx, userId: string, c: CaseStudy, state: CaseRow
   const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
   const before = basisRating(user.glickoRating, user.practicePoints);
   let after = before, reason: string | undefined;
-  if (first) {
+  const teamed = first && (await tx.teamMember.count({ where: { userId, team: { kind: "case", slug: c.slug, finalizedAt: { not: null } } } })) > 0;
+  if (teamed) reason = "No rating points, because you worked this case with a team.";
+  else if (first) {
     const points = Math.round(CASE_POINTS[c.difficulty] * earnedShare(c, all));
     if (points > 0) {
       const u2 = await tx.user.update({ where: { id: userId }, data: { practicePoints: { increment: points } } });

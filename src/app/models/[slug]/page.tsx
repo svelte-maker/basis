@@ -6,7 +6,7 @@ import { getModelTask, instantiateModel, MODEL_POINTS, MODEL_TASKS, publicView }
 import { currentInstance, parseDraft } from "@/lib/services/models";
 import { ModelText } from "../ModelText";
 import { ModelWorkspace } from "./ModelWorkspace";
-import { TeamPanel } from "./TeamPanel";
+import { TeamPanel } from "../../teams/TeamPanel";
 import "../models.css";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -54,7 +54,7 @@ export default async function ModelPage({ params }: { params: Promise<{ slug: st
           initialReveal={showAnswer ? { answer: inst.answer, solution: inst.solution } : null}
         />
       </article>
-      <TeamPanel slug={slug} userId={user?.id ?? null} />
+      <TeamPanel kind="model" slug={slug} userId={user?.id ?? null} />
       <div className="row between small">
         <span className="muted">Values are accepted within 0.05%, so normal rounding is fine. Formulas are checked, not just numbers.</span>
         <Link href={`/models/${nextT.slug}`}>Next: {nextT.title} →</Link>

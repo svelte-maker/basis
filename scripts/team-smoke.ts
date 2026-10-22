@@ -8,7 +8,7 @@ import { partOfCell, teamInstance, TEAM_SPLITS } from "../src/lib/teams";
 const BASE = process.env.BASE_URL ?? "http://localhost:3000";
 const SHOTS = process.env.SHOTS_DIR;
 const SLUG = "five-year-dcf";
-const PART_LI = "section:has(h3:text-is('Parts')) .parts li";
+const PART_LI = "section:has(h3:text-is('Parts')) .tparts li";
 const db = new PrismaClient();
 
 function check(cond: unknown, msg: string) {
@@ -121,7 +121,7 @@ async function main() {
     for (const u of after) check(u.practicePoints === before[u.id] + pts[u.id], `${u.handle} practice points +${pts[u.id]}`);
 
     await a.goto(`${BASE}/u/${members[2].handle}`);
-    check(await a.locator("h2:has-text('Team builds')").count(), "profile lists team builds");
+    check(await a.locator("h2:has-text('Team work')").count(), "profile lists team builds");
     if (SHOTS) await a.screenshot({ path: `${SHOTS}/team-04-profile.png`, fullPage: true });
 
     await a.goto(`${BASE}/teams`);

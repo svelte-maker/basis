@@ -4,13 +4,13 @@ import { revalidatePath } from "next/cache";
 import { getCurrentUser, requireUser } from "@/lib/auth";
 import type { GradeReport } from "@/lib/models/grade";
 import {
-  checkPart, claimPart, createTeam, joinTeam, leaveTeam, releasePart, saveTeamCells, setReady, type TeamActionResult,
+  checkPart, claimPart, createTeam, joinTeam, leaveTeam, releasePart, saveTeamCells, setReady, type TeamActionResult, type TeamKind,
 } from "@/lib/services/teams";
 import { teamSnapshot, type TeamSnapshot } from "@/lib/services/teamView";
 
-export async function createTeamAction(slug: string): Promise<void> {
-  const user = await requireUser(`/models/${slug}`);
-  const r = await createTeam(user.id, slug);
+export async function createTeamAction(kind: TeamKind, slug: string): Promise<void> {
+  const user = await requireUser(`/${kind === "case" ? "cases" : "models"}/${slug}`);
+  const r = await createTeam(user.id, kind, slug);
   if (r.ok) redirect(`/teams/${r.id}`);
 }
 
@@ -60,5 +60,5 @@ export async function teamSnapshotAction(teamId: string): Promise<TeamSnapshot |
 
 export async function checkPartAction(teamId: string, key: string): Promise<GradeReport | null> {
   const user = await getCurrentUser();
-  return user ? checkPart(user.id, teamId, key) : null;
+  return user ? (await checkPart(user.id, teamId, key))?.report ?? null : null;
 }

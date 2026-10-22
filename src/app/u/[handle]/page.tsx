@@ -8,8 +8,7 @@ import { RatingChart } from "@/components/RatingChart";
 import { CopyButton } from "@/components/CopyButton";
 import { GRADES } from "@/lib/rating/grades";
 import { headers } from "next/headers";
-import { getModelTask } from "@/lib/models";
-import { parseResult } from "@/lib/services/teams";
+import { parseResult, teamTaskInfo } from "@/lib/services/teams";
 
 export const dynamic = "force-dynamic";
 
@@ -100,14 +99,14 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
         </section>
       )}
       {p.teams.length > 0 && (
-        <section className="stack-sm"><h2>Team builds</h2>
-          <p className="small muted">Models built with others. Each part was checked on its own, and the share shows how much of the model this person wrote.</p>
-          <div className="panel table-box"><table className="data"><thead><tr><th>Model</th><th>Parts built</th><th className="r">Share</th><th className="r">Team</th><th className="r">Points</th></tr></thead><tbody>
+        <section className="stack-sm"><h2>Team work</h2>
+          <p className="small muted">Models and cases done with others. Each part was checked on its own, and the share shows how much of the work this person did.</p>
+          <div className="panel table-box"><table className="data"><thead><tr><th>Task</th><th>Parts done</th><th className="r">Share</th><th className="r">Team</th><th className="r">Points</th></tr></thead><tbody>
             {p.teams.map((m) => {
               const res = parseResult(m.team.result);
               const built = res?.parts.filter((x) => (x.shares[user.id] ?? 0) > 0).map((x) => `${x.title} (${Math.round(x.score * 100)}%)`).join(", ");
               return (
-                <tr key={m.teamId}><td><Link href={`/teams/${m.teamId}`}>{getModelTask(m.team.slug)?.title ?? m.team.slug}</Link></td><td className="small">{built || "—"}</td>
+                <tr key={m.teamId}><td><Link href={`/teams/${m.teamId}`}>{teamTaskInfo(m.team.kind, m.team.slug)?.title ?? m.team.slug}</Link></td><td className="small">{built || "—"}</td>
                   <td className="r num">{Math.round(m.contribution * 100)}%</td><td className="r num">{m.team._count.members} people</td><td className="r num">+{m.points}</td></tr>);
             })}
           </tbody></table></div>
