@@ -18,7 +18,7 @@ const ERROR_HELP: Record<string, string> = {
 };
 
 export function Spreadsheet({
-  rows, cols, widths, cells, entries, onEntries, marks, readOnly, showFormulas, focus, canEdit, owners,
+  rows, cols, widths, cells, entries, onEntries, marks, readOnly, showFormulas, focus, canEdit, owners, editInputs,
 }: {
   rows: number; cols: number; widths: number[]; cells: Record<string, CellSpec>;
   entries: Raw; onEntries: (next: Raw) => void;
@@ -29,6 +29,8 @@ export function Spreadsheet({
   canEdit?: (a: string) => boolean;
   /** Team play: who owns each cell, shown as a coloured edge and a tooltip. */
   owners?: Record<string, { color: string; name: string }>;
+  /** Learn sandboxes: input cells stay blue but can be changed. Their values then live in entries. */
+  editInputs?: boolean;
 }) {
   const [sel, setSel] = useState<Pos>({ r: 0, c: 1 });
   const [anchor, setAnchor] = useState<Pos>({ r: 0, c: 1 });
@@ -58,7 +60,8 @@ export function Spreadsheet({
   }, [focus]);
 
   const a = addr(sel.r, sel.c);
-  const editable = (p: Pos) => !readOnly && (!cells[addr(p.r, p.c)] || cells[addr(p.r, p.c)].kind === "calc") && (!canEdit || canEdit(addr(p.r, p.c)));
+  const editableKind = (k: string) => k === "calc" || (!!editInputs && k === "input");
+  const editable = (p: Pos) => !readOnly && (!cells[addr(p.r, p.c)] || editableKind(cells[addr(p.r, p.c)].kind)) && (!canEdit || canEdit(addr(p.r, p.c)));
   const rawAt = (p: Pos) => { const k = addr(p.r, p.c); return given[k] ?? entries[k] ?? ""; };
   const r1 = Math.min(sel.r, anchor.r), r2 = Math.max(sel.r, anchor.r), c1 = Math.min(sel.c, anchor.c), c2 = Math.max(sel.c, anchor.c);
   const inRange = (r: number, c: number) => r >= r1 && r <= r2 && c >= c1 && c <= c2;
@@ -233,6 +236,7 @@ export function Spreadsheet({
       </div>
       <div className="sheet-status small">
         {problem ? <span className="bad">{problem}</span>
+          : spec?.kind === "input" && editInputs ? <span className="muted">Input. Change it and watch every formula that depends on it update.</span>
           : spec?.kind === "input" ? <span className="muted">Given input. The checker changes these to test that your model updates.</span>
           : spec && spec.kind !== "calc" ? <span className="muted">Locked.</span>
           : marks?.[a] ? <span className={marks[a].ok ? "good" : "bad"}>{marks[a].note}</span>

@@ -11,6 +11,8 @@ import Tvm from "../_tools/Tvm";
 import Loan from "../_tools/Loan";
 import Ratios from "../_tools/Ratios";
 import Risk from "../_tools/Risk";
+import { LearnLink } from "@/components/LearnLink";
+import { lessonsForTool } from "@/lib/learn";
 
 const COMPONENTS: Record<string, () => React.ReactElement> = { dcf: Dcf, lbo: Lbo, wacc: Wacc, comps: Comps, bond: Bond, options: Options, tvm: Tvm, loan: Loan, ratios: Ratios, risk: Risk };
 
@@ -33,6 +35,7 @@ export default async function ToolPage({ params }: { params: Promise<{ tool: str
       <div className="row small"><Link href="/tools">← All tools</Link></div>
       <div><h1>{meta.title}</h1><p className="lede">{meta.blurb}</p></div>
       <C />
+      <LearnLink lessons={lessonsForTool(tool)} />
     </div>
   );
 }

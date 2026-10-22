@@ -13,8 +13,8 @@
 
 1. Read last week's brief in `growth/briefs/` and the live site's member count on the home page.
 2. **SEO content (PR).** Write one or two articles targeting real search intent, e.g. "how to calculate WACC with example", "LBO interview questions", "DCF terminal value explained", "CFA level 1 practice problems free". Each article:
-   - Lives in `content/learn/<slug>.md` with front matter `title`, `description`, `track`, `related` (problem slugs). If the `/learn` section isn't built yet, still write the file; the Product Engineer builds the page from the roadmap.
-   - Teaches the concept with a worked example whose numbers come from `src/lib/finance/` functions (show the inputs so QA can recheck), then links to the matching Basis problems and tools.
+   - Is a lesson in `src/lib/learn/lessons/` (see [`content/learn/README.md`](../content/learn/README.md)): a typed `Lesson` with every section the type requires, added to `LESSONS` in `src/lib/learn/index.ts`. It renders at `/learn/<slug>` with its own title, description and Open Graph tags. Extend an existing lesson when the topic fits one, rather than writing a near-duplicate.
+   - Teaches the concept with a worked example whose numbers are computed in the lesson file by `src/lib/finance/` functions, never typed in, then links to the matching Basis problems, model tasks, case parts and tools in `apply`. `npm test` fails on a broken link.
    - Is original, specific and useful on its own. No keyword stuffing.
 3. **Social drafts.** Write the week's posts in `growth/drafts/<YYYY-MM-DD>-social.md`: 3 LinkedIn posts, 5 X posts, and 1 Reddit post (Reddit must be genuinely helpful and follow each subreddit's self-promotion rules; say which rules apply). Mark each with the channel, the goal and a suggested time.
 4. **Outreach drafts.** Once a fortnight, draft a short personalised email template and a target list (name of club or group, public contact page, why they fit) for 10 university finance clubs or study communities, in `growth/drafts/<YYYY-MM-DD>-outreach.md`. Only use publicly listed contact routes.
