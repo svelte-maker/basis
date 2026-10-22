@@ -7,7 +7,7 @@ Basis is run day to day by a small team of Claude agents, each with one job. The
 | Problem Author | [problem-author.md](problem-author.md) | Mon, Wed, Fri | PRs adding new graded problems |
 | Product Engineer | [product-engineer.md](product-engineer.md) | Tue, Thu | PRs for roadmap features and fixes |
 | QA & Reliability | [qa-reliability.md](qa-reliability.md) | Daily | Health checks, reviews of open PRs, bug issues |
-| Growth Marketer | [growth-marketer.md](growth-marketer.md) | Mon | SEO articles (PRs), social and outreach drafts |
+| Growth Marketer | [growth-marketer.md](growth-marketer.md) | Daily (weekly extras Mon) | Daily LinkedIn, Instagram, X and WhatsApp drafts; SEO articles, Reddit and outreach drafts on Mondays |
 | Community Manager | [community-manager.md](community-manager.md) | Wed, Sat | Contest plans, announcements, weekly digest drafts |
 | Chief of Staff | [chief-of-staff.md](chief-of-staff.md) | Fri | Weekly brief, roadmap upkeep, decisions for Svelte |
 
