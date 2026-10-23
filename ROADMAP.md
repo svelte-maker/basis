@@ -9,10 +9,6 @@ Owned by the Chief of Staff agent; Svelte has the final say. Keep "Now" to five 
 3. **Share your rating.** A share card image and one-click "Add to LinkedIn" (certification URL pointing at `/verify/<id>`) on the profile page.
 4. **Daily problem and streaks.** One featured problem a day on the home page, with a streak counter on profiles.
 
-## In review
-
-- **SEO basics** (agent/product-engineer/seo-basics): `sitemap.xml` with every lesson, the glossary, problems and tools; `robots.txt`; canonical URLs; Open Graph cards for problems, lessons, profiles and verify pages.
-
 ## Next
 
 - Email: verification on signup, password reset, contest reminders (needs an email provider; Svelte to choose).
@@ -37,3 +33,4 @@ Owned by the Chief of Staff agent; Svelte has the final say. Keep "Now" to five 
 
 - v1: problems, ratings, contests, community, profiles, recruiter search, valuation and modelling tools. Deployed on Vercel with Neon Postgres.
 - `/learn`: 20 in-depth lessons across 10 modules (foundations, accounting, valuation, modelling and Excel, IPOs and FPOs, M&A and LBOs, fixed income, derivatives, risk, credit), each with a "Textbook vs the desk" section, interview questions, a quiz, live editable spreadsheets and links to the problems, models and case parts that apply it; a glossary; and "Learn the concept" links on every problem, model, case and tool page.
+- SEO basics (#13): `sitemap.xml` with every lesson, the glossary, problems and tools; `robots.txt`; canonical URLs; Open Graph cards for problems, lessons, profiles and verify pages.

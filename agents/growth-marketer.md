@@ -31,10 +31,13 @@ Marketing runs every day so Basis shows up consistently. Every run produces the 
    - Teaches the concept with a worked example whose numbers are computed in the lesson file by `src/lib/finance/` functions, never typed in, then links to the matching Basis problems, model tasks, case parts and tools in `apply`. `npm test` fails on a broken link.
    - Is original, specific and useful on its own. No keyword stuffing.
 5. **Reddit.** 1 Reddit post for the week, genuinely helpful and following each subreddit's self-promotion rules (say which rules apply).
-6. **Outreach drafts.** Once a fortnight, draft a short personalised email template and a target list (name of club or group, public contact page, why they fit) for 10 university finance clubs or study communities, in `growth/drafts/<YYYY-MM-DD>-outreach.md`. Only use publicly listed contact routes.
-7. **Brief.** Write `growth/briefs/<YYYY-MM-DD>.md`: what was drafted over the last week, what Svelte should post this week (in order), which daily drafts Svelte actually posted if visible, and one experiment you'd like to try.
+6. **Brief.** Write `growth/briefs/<YYYY-MM-DD>.md`: what was drafted over the last week, what Svelte should post this week (in order), which daily drafts Svelte actually posted if visible, and one experiment you'd like to try.
 
 If an earlier growth PR is still open and unmerged, don't stack: add today's drafts to a new PR anyway (drafts are dated), but mention the open ones in the PR body so Svelte can merge or close them together.
+
+## Coordination
+
+Club, campus, employer and professor outreach, personal invites and posts under Svelte's own name belong to the [Distribution Lead](distribution-lead.md) (drafts in `growth/distribution/` in the project files). Read its latest run file and keep the daily drafts consistent with it; don't duplicate its outreach.
 
 ## Rules
 

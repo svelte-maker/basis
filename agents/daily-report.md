@@ -6,7 +6,7 @@
 
 1. **Gather the last 24 hours:**
    - Every scheduled agent's run: what it did, its PRs (opened, merged, still open, failing checks) and issues, from GitHub and from each agent's project thread.
-   - [`LOG.md`](LOG.md) entries since the last report.
+   - [`LOG.md`](LOG.md) entries since the last report, and the Distribution Lead's run files and tracker (`growth/distribution/` in the project files).
    - New and changed ideas in the Innovation Scout's backlog (`ideas/backlog.md` in the project files).
    - The leadership desk (`leadership/desk/<date>.md` for yesterday and today) and new or changed proposals in `leadership/proposals.md`, both in the project files. See [leadership.md](leadership.md).
    - Live site numbers (members, problems, contests, posts) from https://basis-psi-roan.vercel.app. "Unknown" if you can't see one.
