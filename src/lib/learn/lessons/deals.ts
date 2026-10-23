@@ -232,7 +232,7 @@ export const leveragedBuyouts: Lesson = {
     { q: "Approximate IRR of a 2x MOIC over 3 years:", options: ["15%", "26%", "33%", "41%"], answer: 1, why: "2^(1/3) − 1 ≈ 26%." },
   ],
   apply: {
-    problems: ["lbo-sources-and-uses", "lbo-exit-returns", "irr-from-moic", "leverage-and-coverage"],
+    problems: ["lbo-sources-and-uses", "lbo-exit-returns", "irr-from-moic", "leverage-and-coverage", "dividend-recap-irr", "fund-waterfall-carry"],
     models: ["lbo-debt-sweep"],
     cases: [],
     tools: ["lbo"],
