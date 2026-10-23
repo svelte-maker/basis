@@ -20,7 +20,7 @@ Add this only once WhatsApp is running smoothly. It mirrors the WhatsApp announc
 
 > 👋 Welcome to Basis Finance Community.
 >
-> Here you'll get the problem of the day each morning (UTC), the Sunday contest reminder (15:00 UTC, 60 min, 4 problems) and a weekly roundup. Comment on any post to discuss it.
+> Here you'll get the problem of the day each morning (UTC), the Sunday contest reminder and a weekly roundup. Comment on any post to discuss it.
 >
 > Start here 👉 https://basis-psi-roan.vercel.app
 >

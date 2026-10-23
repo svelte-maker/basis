@@ -27,7 +27,7 @@ Not recommended yet: Facebook groups (low fit for this audience), Slack (paid hi
 - **Long description:**
   > Basis is a free practice and rating platform for finance. Every member gets their own randomized numbers, so answers can't be copied, and your rating (B to AAA, like a credit rating) is earned in timed contests. This community is where members get the weekly contest reminder and the problem of the day, swap approaches after contests and help each other prepare for interviews and exams like CFA and FRM. Start here: https://basis-psi-roan.vercel.app
 - **Logo/avatar:** the Basis logo on a plain background, square, readable at 64 px.
-- **Banner text (all platforms):** "Solve. Compete. Get rated." with a smaller line "Weekly finance contests · Sundays 15:00 UTC · basis-psi-roan.vercel.app"
+- **Banner text (all platforms):** "Solve. Compete. Get rated." with a smaller line "Weekly finance contests every Sunday · basis-psi-roan.vercel.app" (no clock time, so the banner survives a schedule change)
 
 ## Shared rules (paste and adapt per platform)
 
