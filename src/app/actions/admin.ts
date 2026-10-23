@@ -29,6 +29,9 @@ export async function createContest(_: FormState, form: FormData): Promise<FormS
   let problems = form.getAll("problems").map(String).filter((s) => getTemplate(s));
   if (problems.length === 0) problems = autoPick();
   if (problems.length > 10) return { error: "Pick at most 10 problems." };
+  // The form lists problems by track; contestants see them in stored order, so put Easy first.
+  const level = { Easy: 0, Medium: 1, Hard: 2 } as const;
+  problems.sort((a, b) => level[getTemplate(a)!.difficulty] - level[getTemplate(b)!.difficulty]);
   const base = parsed.data.title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 50);
   const slug = `${base}-${Date.now().toString(36).slice(-4)}`;
   await db.contest.create({ data: { slug, title: parsed.data.title, description: parsed.data.description, startsAt, endsAt: new Date(startsAt.getTime() + parsed.data.minutes * 60_000), rated: form.get("rated") === "on", problemSlugs: JSON.stringify(problems) } });
