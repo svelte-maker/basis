@@ -481,7 +481,7 @@ export const creditAnalysis: Lesson = {
     { q: "Under RBI rules a loan becomes an NPA when it is overdue for more than:", options: ["30 days", "60 days", "90 days", "180 days"], answer: 2, why: "The 90-day overdue rule." },
   ],
   apply: {
-    problems: ["debt-service-coverage", "expected-credit-loss", "net-interest-margin", "leverage-and-coverage", "loan-payment"],
+    problems: ["debt-service-coverage", "expected-credit-loss", "net-interest-margin", "leverage-and-coverage", "loan-payment", "cet1-ratio"],
     models: ["term-loan-amortisation"],
     cases: [],
     tools: ["loan", "ratios"],
