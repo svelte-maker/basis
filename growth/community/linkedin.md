@@ -96,7 +96,7 @@ Two pieces: a **Company Page** (the brand, where you post) and a **Group** (wher
 > → Weekly timed contests that feed a rating from B to AAA
 > → A public verification link for your resume
 >
-> It's early. The first contest, *Basis #1: The Founding Round* (unrated), is Sunday 25 Oct at 17:00 IST (11:30 UTC). Come solve, tell us what's broken, and help decide what we build next.
+> It's early. The first contest, Basis #1: The Founding Round (unrated), is Sunday 25 Oct at 17:00 IST (11:30 UTC). Come solve, tell us what's broken, and help decide what we build next.
 >
 > https://basis-psi-roan.vercel.app
 >
