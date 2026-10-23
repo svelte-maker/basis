@@ -2,11 +2,11 @@
 
 Drafts for Svelte to post. Times are UTC. "Everywhere" means WhatsApp Announcements, Discord `#problem-of-the-day` (or `#announcements`) and the Telegram channel if you set one up. Each daily problem uses the WhatsApp format from [whatsapp.md](whatsapp.md#message-formats-reuse-every-week).
 
-**Contest #1 is the Founding Round:** Sunday 25 Oct, 17:00 IST (11:30 UTC), 75 minutes, 5 problems, **unrated**. It ends at 18:15 IST (12:45 UTC).
+**Contest #1 is Basis #1: The Founding Round:** Sunday 25 Oct, 17:00 IST (11:30 UTC), 75 minutes, 5 problems, **unrated**. It ends at 18:15 IST (12:45 UTC).
 
 **Launching later than Thursday?** Post the Thursday rows (A, B and the welcome messages) on the day you launch, then carry on from that day's row.
 
-**Depends on:** the Founding Round being scheduled at `/admin` (see [contest-calendar.md](../contest-calendar.md)). If it isn't, drop the contest lines and say "first contest coming soon".
+**Depends on:** Basis #1: The Founding Round being scheduled at `/admin` (see [contest-calendar.md](../contest-calendar.md)). If it isn't, drop the contest lines and say "first contest coming soon".
 
 | Day | Where | Post |
 | --- | --- | --- |
@@ -31,7 +31,7 @@ Drafts for Svelte to post. Times are UTC. "Everywhere" means WhatsApp Announceme
 
 > Basis is a place to get better at finance by doing it, and to prove it with a rating.
 >
-> If you're new, start with any Easy problem in a track you like, then join our first contest, the Founding Round, on Sunday 25 Oct at 17:00 IST (11:30 UTC). It's unrated, so it's a free run at the format; ratings start with the rated weekly contests after it.
+> If you're new, start with any Easy problem in a track you like, then join our first contest, Basis #1: The Founding Round, on Sunday 25 Oct at 17:00 IST (11:30 UTC). It's unrated, so it's a free run at the format; ratings start with the rated weekly contests after it.
 >
 > Reply with: where you are (student, analyst, switching in), the track you want to improve, and one concept you still find confusing. I'll use the answers to decide which problems we add next.
 
@@ -47,7 +47,7 @@ Drafts for Svelte to post. Times are UTC. "Everywhere" means WhatsApp Announceme
 > • Weekly timed contests, Sundays 17:00 IST (11:30 UTC), that feed a rating from B to AAA
 > • A public verification link for your resume
 >
-> The first contest, an unrated Founding Round, is this Sunday at 17:00 IST (11:30 UTC). It's early, so things will break and problems will be missing. Tell me what you'd want to see.
+> The first contest, Basis #1: The Founding Round (unrated), is this Sunday at 17:00 IST (11:30 UTC). It's early, so things will break and problems will be missing. Tell me what you'd want to see.
 >
 > Link in the first comment. 👇
 >
@@ -88,7 +88,7 @@ First comment: `Try it here: https://basis-psi-roan.vercel.app` plus the LinkedI
 
 ## C. Contest reminder (Saturday)
 
-> 🏁 The Basis Founding Round is tomorrow, Sunday 25 Oct, 17:00 IST (11:30 UTC).
+> 🏁 Basis #1: The Founding Round is tomorrow, Sunday 25 Oct, 17:00 IST (11:30 UTC).
 > 75 minutes · 5 problems from Easy to Hard · everyone gets their own numbers.
 > It's unrated: a free run at the format before rated weekly contests begin.
 > Register: https://basis-psi-roan.vercel.app/contests
@@ -97,10 +97,10 @@ First comment: `Try it here: https://basis-psi-roan.vercel.app` plus the LinkedI
 
 Fill in only from the live standings page. Don't post numbers you haven't seen there.
 
-> 🏁 The Founding Round is done. Thank you to everyone who took part.
+> 🏁 Basis #1: The Founding Round is done. Thank you to everyone who took part.
 > Final standings: https://basis-psi-roan.vercel.app/contests (unrated, so no rating changes this time)
 > Approaches are open now: share how you tackled each problem in the Lounge / #post-contest-walkthroughs.
-> Next contest: Sunday 1 Nov, 17:00 IST (11:30 UTC), rated.
+> Next: *Basis #2: Alpha Hunt*, Sunday 1 Nov, 17:00 IST (11:30 UTC), rated.
 
 ## E. "What I learned in week 1" (LinkedIn, you write it)
 
