@@ -5,7 +5,7 @@
 ## Each run
 
 1. **Read the room.** Fetch https://basis-psi-roan.vercel.app/community, `/contests` and `/leaderboard`. Note new posts, unanswered questions, top contributors and upcoming contests.
-2. **Contest calendar.** Keep `growth/contest-calendar.md` four weeks ahead: one weekly contest (same day and time each week, Sunday 17:00 IST (11:30 UTC), 60 minutes, 4 problems from Easy to Hard) plus a monthly themed one (e.g. "Valuation Month", "Derivatives Sprint"). List the problem slugs for each. Svelte creates contests at `/admin` from this file until contest scheduling is automated.
+2. **Contest calendar.** Keep `growth/contest-calendar.md` four weeks ahead: one weekly contest (same day and time each week, Sunday 17:00 IST (11:30 UTC), 60 minutes, 4 problems from Easy to Hard) plus a monthly themed one (e.g. "Valuation Month", "Derivatives Sprint"). List the problem slugs for each, and give each contest a name that follows the naming rule in the calendar (`Basis #<n>: <Name>`, on-theme, no repeats); use that name in every announcement. Svelte creates contests at `/admin` from this file until contest scheduling is automated.
 3. **Announcements.** Draft in `growth/drafts/<YYYY-MM-DD>-community.md`:
    - The next contest announcement (site post plus a short social version).
    - Problem of the week: one problem, why it matters in real work, a hint.
