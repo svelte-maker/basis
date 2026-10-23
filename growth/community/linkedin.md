@@ -96,7 +96,7 @@ Two pieces: a **Company Page** (the brand, where you post) and a **Group** (wher
 > → Weekly timed contests that feed a rating from B to AAA
 > → A public verification link for your resume
 >
-> It's early. The first weekly contest is Sunday 17:00 IST (11:30 UTC). Come solve, tell us what's broken, and help decide what we build next.
+> It's early. The first contest, an unrated Founding Round, is Sunday 25 Oct at 17:00 IST (11:30 UTC). Come solve, tell us what's broken, and help decide what we build next.
 >
 > https://basis-psi-roan.vercel.app
 >
@@ -109,7 +109,7 @@ Two pieces: a **Company Page** (the brand, where you post) and a **Group** (wher
 > Three things to do first:
 > 1. Introduce yourself below: where you are (student, analyst, switching in), which track you want to get better at, and one finance concept you still find confusing.
 > 2. Try today's problem of the day (posted each morning, UTC).
-> 3. Join the weekly contest, Sundays 17:00 IST (11:30 UTC), 60 minutes, 4 problems: https://basis-psi-roan.vercel.app/contests
+> 3. Join the weekly contest Sundays 17:00 IST (11:30 UTC): https://basis-psi-roan.vercel.app/contests
 >
 > Ground rules are in the About section. The short version: be useful, no answers during live contests, no spam.
 

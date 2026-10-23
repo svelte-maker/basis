@@ -41,7 +41,7 @@ Use a **WhatsApp Community**: one announcement group (admins only, low noise) pl
 >
 > Here's what you'll get, and nothing else:
 > • *Problem of the day* (one message each morning, UTC)
-> • *Sunday contest reminder* (Sunday 17:00 IST (11:30 UTC), 60 min, 4 problems)
+> • *Sunday contest reminder* (17:00 IST / 11:30 UTC)
 > • *Results and new problems* once a week
 >
 > Chat happens in *Basis · Lounge*, join it from the community page.
@@ -77,10 +77,10 @@ Use a **WhatsApp Community**: one announcement group (admins only, low noise) pl
 > Solve it (your own numbers): https://basis-psi-roan.vercel.app/problems/{slug}
 > Discuss approaches in the Lounge 💬
 
-**Contest reminder (Announcements, Saturday evening and Sunday 10:30 UTC (16:00 IST)):**
+**Contest reminder (Announcements, Saturday evening and Sunday 16:00 IST):**
 
-> 🏁 *Weekly contest:* today 17:00 IST (11:30 UTC) · 60 minutes · 4 problems, Easy → Hard
-> Your first rated contest gives you your grade (B to AAA).
+> 🏁 *Weekly contest:* today 17:00 IST (11:30 UTC) · {length} minutes · {n} problems, Easy → Hard
+> {Rated contests: "Your first rated contest gives you your grade (B to AAA)." Unrated rounds: "This round is unrated, so it's a free run at the format."}
 > Join: https://basis-psi-roan.vercel.app/contests
 
 ## Growing it

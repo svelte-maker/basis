@@ -2,7 +2,7 @@
 
 Kept four weeks ahead by the Community Manager agent. Svelte creates each contest at /admin from this list until scheduling is automated.
 
-Weekly contests: every Sunday at 17:00 IST (11:30 UTC), 60 minutes, 4 problems (Easy, Medium, Medium, Hard), mixed tracks (Svelte, 23 Oct). Contest #1 is longer: 75 minutes, 5 problems, unrated (plan in the project files, 23 Oct). Monthly themed contest: one per month, 90 minutes, 5 problems in one theme.
+Weekly contests: Sundays 17:00 IST (11:30 UTC), 60 minutes, 4 problems (Easy, Medium, Medium, Hard), mixed tracks (Svelte, 23 Oct). Contest #1 is the exception: 75 minutes, 5 problems, unrated (plan in the project files, 23 Oct). Monthly themed contest: one per month, 90 minutes, 5 problems in one theme.
 
 | Date (UTC) | Name | Length | Problems |
 | --- | --- | --- | --- |
