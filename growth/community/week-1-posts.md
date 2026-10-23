@@ -12,9 +12,9 @@ Drafts for Svelte to post. Times are UTC. "Everywhere" means WhatsApp Announceme
 | Fri 23, 08:00 | Everywhere | Problem of the day: EV bridge |
 | Fri 23, 12:00 | LinkedIn Group, Discord `#ask-anything` | Discussion prompt 1 |
 | Sat 24, 08:00 | Everywhere | Problem of the day: cash from operations |
-| Sat 24, 18:00 | Everywhere, LinkedIn Page | Contest reminder (C) |
-| Sun 25, 14:00 | Everywhere | Contest reminder, "in one hour" |
-| Sun 25, 16:05 | Everywhere | Contest wrap-up (D) |
+| Sat 24, 13:30 | Everywhere, LinkedIn Page | Contest reminder (C) |
+| Sun 25, 10:30 | Everywhere | Contest reminder, "in one hour" |
+| Sun 25, 12:50 | Everywhere | Contest wrap-up (D), with the editorial link |
 | Mon 26, 08:00 | Everywhere | Problem of the day: bond price |
 | Tue 27, 08:00 | Everywhere | Problem of the day: put-call parity |
 | Tue 27, 12:00 | LinkedIn Group, Discord | Discussion prompt 2 |
@@ -27,7 +27,7 @@ Drafts for Svelte to post. Times are UTC. "Everywhere" means WhatsApp Announceme
 
 > Basis is a place to get better at finance by doing it, and to prove it with a rating.
 >
-> If you're new, start with any Easy problem in a track you like, then join the weekly contest on Sunday at 15:00 UTC. Your first rated contest gives you your grade.
+> If you're new, start with any Easy problem in a track you like, then join the weekly contest on Sunday at 17:00 IST (11:30 UTC). Your first rated contest gives you your grade.
 >
 > Reply with: where you are (student, analyst, switching in), the track you want to improve, and one concept you still find confusing. I'll use the answers to decide which problems we add next.
 
@@ -40,7 +40,7 @@ Drafts for Svelte to post. Times are UTC. "Everywhere" means WhatsApp Announceme
 > Basis is my attempt to fix that. It's free:
 > • 47 auto-graded problems across 8 tracks: accounting, corporate finance, valuation, fixed income, derivatives, PE, portfolio & risk, banking & credit
 > • You get your own randomized numbers, so answers can't be copied
-> • Weekly timed contests (Sundays 15:00 UTC) that feed a rating from B to AAA
+> • Weekly timed contests (Sundays 17:00 IST (11:30 UTC)) that feed a rating from B to AAA
 > • A public verification link for your resume
 >
 > The first contest is this Sunday. It's early, so things will break and problems will be missing. Tell me what you'd want to see.
@@ -84,9 +84,9 @@ First comment: `Try it here: https://basis-psi-roan.vercel.app` plus the LinkedI
 
 ## C. Contest reminder (Saturday)
 
-> 🏁 The first Basis weekly contest is tomorrow, Sunday 25 Oct, 15:00 UTC.
-> 60 minutes · 4 problems from Easy to Hard · everyone gets their own numbers.
-> Your first rated contest gives you your grade, B to AAA.
+> 🏁 The first Basis weekly contest is tomorrow, Sunday 25 Oct, 17:00 IST (11:30 UTC).
+> Founding Round: 75 minutes · 5 problems from Easy to Hard · everyone gets their own numbers.
+> It's unrated; ratings start once our anti-guessing checks ship.
 > Register: https://basis-psi-roan.vercel.app/contests
 
 ## D. Contest wrap-up (Sunday after it ends)
@@ -94,9 +94,9 @@ First comment: `Try it here: https://basis-psi-roan.vercel.app` plus the LinkedI
 Fill in only from the live standings page. Don't post numbers you haven't seen there.
 
 > 🏁 Weekly contest #1 is done. Thank you to everyone who took part.
-> Final standings and new ratings: https://basis-psi-roan.vercel.app/contests
+> Final standings and the editorial: https://basis-psi-roan.vercel.app/contests
 > Approaches are open now: share how you tackled each problem in the Lounge / #post-contest-walkthroughs.
-> Next contest: Sunday 1 Nov, 15:00 UTC.
+> Next contest: Sunday 1 Nov, 17:00 IST (11:30 UTC).
 
 ## E. "What I learned in week 1" (LinkedIn, you write it)
 

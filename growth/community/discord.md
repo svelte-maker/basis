@@ -59,7 +59,7 @@ Discord is the best home for live contest chat, study sessions and threads on sp
 > 4. Try today's problem in #problem-of-the-day.
 >
 > **Every week**
-> 🏁 Contest: **Sunday 15:00 UTC**, 60 minutes, 4 problems, Easy → Hard. Grab `@Contest pings` to get a reminder.
+> 🏁 Contest: **Sunday 17:00 IST (11:30 UTC)**, 60 minutes, 4 problems, Easy → Hard. Grab `@Contest pings` to get a reminder.
 > 🧮 A problem of the day, every day.
 > 🗣️ Post-contest walkthroughs in #post-contest-walkthroughs.
 >
@@ -79,7 +79,7 @@ Paste the shared rules from [README.md](README.md#shared-rules-paste-and-adapt-p
 
 ## Running contests on Discord
 
-- Saturday 18:00 UTC and Sunday 14:00 UTC: post the reminder in `#announcements` with `@Contest pings`.
-- 15:00 to 16:00 UTC: set `#contest-chat` to slow mode (1 minute) and remind people "no approaches until 16:00".
+- Saturday 13:30 UTC (19:00 IST) and Sunday 10:30 UTC (16:00 IST): post the reminder in `#announcements` with `@Contest pings`.
+- During the contest (11:30 to 12:30 UTC, 17:00 to 18:00 IST): set `#contest-chat` to slow mode (1 minute) and remind people "no approaches until it ends".
 - After it ends: open a forum post per problem in `#post-contest-walkthroughs`.
 - Optional: a voice "walkthrough" in the Study room at 16:15 UTC, 20 minutes.
