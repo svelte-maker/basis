@@ -91,6 +91,17 @@ export default async function ProfilePage({ params }: { params: Promise<{ handle
           {p.posts.length ? <div className="stack-sm">{p.posts.map((post) => <Link key={post.id} href={`/community/${post.id}`} className="small">{post.title} <span className="muted">· {post.score} votes</span></Link>)}</div> : <p className="small muted">Nothing shared yet.</p>}
         </div>
       </div>
+      {p.badges.badges.length > 0 && (
+        <section className="stack-sm"><h2>Badges</h2>
+          <div className="badges">{p.badges.badges.map((b) => (
+            <Link key={b.key} href={`/contests/${b.contestSlug}`} className={`badge panel ${b.kind}`} title={b.detail}>
+              <span className="badge-mark" aria-hidden>{b.kind === "founding" ? "★" : b.key.replace("contests-", "")}</span>
+              <span><strong>{b.label}</strong><span className="small muted">{b.earnedAt.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}</span></span>
+            </Link>
+          ))}</div>
+          {p.badges.next && <p className="small muted">{p.badges.next.remaining} more {p.badges.next.remaining === 1 ? "contest" : "contests"} to the {p.badges.next.count}-contest badge.</p>}
+        </section>
+      )}
       {p.entries.length > 0 && (
         <section className="stack-sm"><h2>Contest history</h2>
           <div className="panel table-box"><table className="data"><thead><tr><th>Contest</th><th className="r">Rank</th><th className="r">Score</th><th className="r">Rating</th></tr></thead><tbody>
