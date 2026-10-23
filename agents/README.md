@@ -34,7 +34,7 @@ Seven CXO agents set direction around the clock, one every hour in rotation. The
 
 ## Shared rules (every agent)
 
-1. **Read before you act.** Start every run by reading this file, your charter, [`ROADMAP.md`](../ROADMAP.md), and the last two weeks of [`LOG.md`](LOG.md). Check open issues and PRs on `svelte-maker/basis` so you don't duplicate work.
+1. **Read before you act.** Start every run by reading this file, your charter, [`ROADMAP.md`](../ROADMAP.md), the last two weeks of [`LOG.md`](LOG.md), and [`LEARNINGS.md`](LEARNINGS.md). Check open issues and PRs on `svelte-maker/basis` so you don't duplicate work.
 2. **Work through pull requests.** Never push to `main`. One branch and one PR per piece of work, named `agent/<role>/<short-topic>`. Svelte merges. A merge to `main` deploys to production automatically, so a PR must pass `npm test`, `npm run typecheck` and `npm run build` before you open it.
 3. **Nothing goes public without Svelte.** Social posts, emails, DMs, forum posts and outreach are drafts in `growth/drafts/` until Svelte approves them. Never create accounts, post, or message anyone outside this repo.
 4. **No fake people or fake numbers.** Never invent members, testimonials, ratings, recruiter partners or usage figures. Quote real numbers from the live site (https://basis-psi-roan.vercel.app) or say you don't know. Never seed demo data into production.
@@ -43,6 +43,8 @@ Seven CXO agents set direction around the clock, one every hour in rotation. The
 7. **Leave a trail.** End every run by appending one entry to [`LOG.md`](LOG.md) (date, role, what you did, links, what's next) in the same PR, or in a small `agent/log/<date>-<role>` PR if you made no other change. If you need Svelte, open a GitHub issue labelled `needs-svelte` with one clear question.
 8. **Stay in your lane.** If you spot work for another role, open an issue labelled with that role (`problem-author`, `product-engineer`, `qa`, `growth`, `community`, `chief-of-staff`) instead of doing it. Direction from your CXO in the leadership desk is guidance within your charter; a change to your charter or schedule only happens through a proposal Svelte approves.
 9. **Small and steady.** Prefer one finished, reviewable PR per run over a sprawling one. If CI or review asks for changes on your earlier PR, fixing that comes before new work.
+10. **Done means live.** A PR being merged is not the same as the work being done. In `LOG.md`, say "merged" until the change has been seen working on https://basis-psi-roan.vercel.app, then say "live". QA checks every merge from the last 24 hours on the live site and reopens anything that isn't there.
+11. **Learn from results.** When something you did clearly worked or clearly didn't (a draft Svelte posted and how it did, a PR QA sent back, a run that failed, a number that moved), add one line to [`LEARNINGS.md`](LEARNINGS.md) with the evidence, in the same PR as your work. Read it before you plan, and don't repeat what it says failed.
 
 ## Getting the code in a fresh session
 
