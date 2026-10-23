@@ -36,12 +36,12 @@ Two pieces: a **Company Page** (the brand, where you post) and a **Group** (wher
 >
 > Basis is new and free. Join a contest, tell us what's missing, and help shape it.
 >
-> Weekly contest: every Sunday. Times at basis-psi-roan.vercel.app/contests.
+> Weekly contest: Sundays 17:00 IST (11:30 UTC).
 
 ### Cover image (1128 × 191 px)
 
 - Left: "Solve. Compete. Get rated."
-- Right, smaller: "Weekly finance contests every Sunday"
+- Right, smaller: "Weekly finance contests · Sundays 17:00 IST"
 - Keep text in the middle 60% (LinkedIn crops the edges on mobile). Plain dark background, no stock photos.
 
 ### Logo
@@ -74,7 +74,7 @@ Two pieces: a **Company Page** (the brand, where you post) and a **Group** (wher
 >
 > What happens here:
 > • Problem of the day, with a hint and a discussion of approaches
-> • Weekly Basis contest reminders (Sundays) and post-contest walkthroughs
+> • Weekly Basis contest reminders (Sundays 17:00 IST (11:30 UTC)) and post-contest walkthroughs
 > • Interview and exam prep (IB, PE, CFA, FRM): "how would you approach this?" threads
 > • Feedback on models and case write-ups
 >
@@ -109,7 +109,7 @@ Two pieces: a **Company Page** (the brand, where you post) and a **Group** (wher
 > Three things to do first:
 > 1. Introduce yourself below: where you are (student, analyst, switching in), which track you want to get better at, and one finance concept you still find confusing.
 > 2. Try today's problem of the day (posted each morning, UTC).
-> 3. Join the weekly contest every Sunday (times on the contests page): https://basis-psi-roan.vercel.app/contests
+> 3. Join the weekly contest Sundays 17:00 IST (11:30 UTC): https://basis-psi-roan.vercel.app/contests
 >
 > Ground rules are in the About section. The short version: be useful, no answers during live contests, no spam.
 

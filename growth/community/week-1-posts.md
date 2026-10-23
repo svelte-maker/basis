@@ -44,7 +44,7 @@ Drafts for Svelte to post. Times are UTC. "Everywhere" means WhatsApp Announceme
 > Basis is my attempt to fix that. It's free:
 > • 47 auto-graded problems across 8 tracks: accounting, corporate finance, valuation, fixed income, derivatives, PE, portfolio & risk, banking & credit
 > • You get your own randomized numbers, so answers can't be copied
-> • Weekly timed contests on Sundays that feed a rating from B to AAA
+> • Weekly timed contests, Sundays 17:00 IST (11:30 UTC), that feed a rating from B to AAA
 > • A public verification link for your resume
 >
 > The first contest, an unrated Founding Round, is this Sunday at 17:00 IST (11:30 UTC). It's early, so things will break and problems will be missing. Tell me what you'd want to see.
@@ -100,7 +100,7 @@ Fill in only from the live standings page. Don't post numbers you haven't seen t
 > 🏁 The Founding Round is done. Thank you to everyone who took part.
 > Final standings: https://basis-psi-roan.vercel.app/contests (unrated, so no rating changes this time)
 > Approaches are open now: share how you tackled each problem in the Lounge / #post-contest-walkthroughs.
-> Next contest: Sunday 1 Nov, time on the contests page.
+> Next contest: Sunday 1 Nov, 17:00 IST (11:30 UTC), rated.
 
 ## E. "What I learned in week 1" (LinkedIn, you write it)
 
