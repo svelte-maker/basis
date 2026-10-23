@@ -79,7 +79,9 @@ Use a **WhatsApp Community**: one announcement group (admins only, low noise) pl
 
 **Contest reminder (Announcements, Saturday evening and Sunday 16:00 IST):**
 
-> 🏁 *Weekly contest:* today 17:00 IST (11:30 UTC) · {length} minutes · {n} problems, Easy → Hard
+Use the round's name from [`contest-calendar.md`](../contest-calendar.md), in the form "Basis #<n>: <Name>".
+
+> 🏁 *Basis #{n}: {Name}* today 17:00 IST (11:30 UTC) · {length} minutes · {n} problems, Easy → Hard
 > {Rated contests: "Your first rated contest gives you your grade (B to AAA)." Unrated rounds: "This round is unrated, so it's a free run at the format."}
 > Join: https://basis-psi-roan.vercel.app/contests
 
