@@ -1292,7 +1292,7 @@ export const bankingCredit: Template[] = [
       const assets = sov + mort + retail + corp;
       return {
         blocks: [
-          { kind: "p", text: `A bank's loan and bond book ($m) and the Basel standardised risk weights it must use:` },
+          { kind: "p", text: `A bank's loan and bond book ($m) with the risk weights to use (Basel II standardised approach):` },
           { kind: "table", head: ["Exposure", "Amount ($m)", "Risk weight"], rows: book.map((b) => [b.name, num(b.amount), pct(b.riskWeight, 0)]) },
           { kind: "p", text: `Risk-weighted assets for market and operational risk add **${money(other)}m**. The bank holds **${money(cet1, 1)}m** of Common Equity Tier 1 (CET1) capital.` },
         ],
@@ -1321,6 +1321,7 @@ export const bankingCredit: Template[] = [
               : ans < 7
                 ? `At ${ans.toFixed(2)}% the bank meets the 4.5% minimum but is inside the 2.5% conservation buffer (7% in total), so it faces limits on dividends, buybacks and bonuses until it rebuilds capital.`
                 : `At ${ans.toFixed(2)}% the bank clears the 4.5% minimum plus the 2.5% conservation buffer (7%). Large banks also face surcharges and stress-test buffers, so in practice many target 11 to 14%.`,
+            "The weights here are the Basel II standardised ones. Under the 2017 Basel III reforms a residential mortgage's weight depends on its loan-to-value ratio (20% to 70%), so the same book can produce a different RWA.",
             `Credit RWA are ${pct(credit / assets, 0)} of exposures (the bank's RWA density). Moving lending from corporate loans to mortgages would lower RWA and raise the ratio without adding a dollar of capital, which is why regulators also watch a simple leverage ratio.`,
           ],
           mistakes: [
