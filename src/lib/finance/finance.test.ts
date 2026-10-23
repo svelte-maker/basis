@@ -9,6 +9,8 @@ import { computeRatios, dupont } from "./ratios";
 import { minVarianceWeight, twoAsset, maxDrawdown, parametricVaR } from "./portfolio";
 import { summarize, impliedPerShare } from "./comps";
 import { median, quantile } from "./stats";
+import { europeanWaterfall } from "./funds";
+import { capitalRatio, creditRwa } from "./banking";
 
 describe("time value of money", () => {
   it("npv matches hand calculation", () => expect(npv(0.1, [-1000, 300, 400, 500])).toBeCloseTo(-21.04, 2));
@@ -173,4 +175,35 @@ describe("portfolio and stats", () => {
     const imp = impliedPerShare({ revenue: 300, ebitda: 60, netIncome: 30, netDebt: 100, shares: 10 }, st);
     expect(imp.evEbitda[1]).toBeCloseTo((10 * 60 - 100) / 10, 8);
   });
+});
+
+describe("fund waterfall", () => {
+  // Worked by hand: 100 in, 5 years, 8% compounding hurdle, 20% carry, full catch-up.
+  // Preferred = 100 × (1.08^5 − 1) = 46.9328; catch-up = 0.25 × 46.9328 = 11.7332.
+  const base = { contributed: 100, years: 5, hurdle: 0.08, carry: 0.2 };
+  it("full catch-up leaves the GP with exactly carry × total profit", () => {
+    const w = europeanWaterfall({ ...base, proceeds: 200 });
+    expect(w.preferred).toBeCloseTo(46.9328, 4);
+    expect(w.catchUp).toBeCloseTo(11.7332, 4);
+    expect(w.gp).toBeCloseTo(20, 8);
+    expect(w.lp + w.gp).toBeCloseTo(200, 8);
+  });
+  it("partial catch-up gives the GP everything above the hurdle", () => {
+    const w = europeanWaterfall({ ...base, proceeds: 150 });
+    expect(w.catchUp).toBeCloseTo(150 - 146.9328, 4);
+    expect(w.residual).toBe(0);
+    expect(w.gp).toBeCloseTo(3.0672, 4);
+  });
+  it("no carry below the hurdle", () => {
+    const w = europeanWaterfall({ ...base, proceeds: 130 });
+    expect(w.preferred).toBeCloseTo(30, 8);
+    expect(w.gp).toBe(0);
+  });
+});
+
+describe("bank capital", () => {
+  // Basel II standardised weights: sovereign AAA 0%, residential mortgage 35%, retail 75%, corporate 100%.
+  const book = [{ amount: 200, riskWeight: 0 }, { amount: 400, riskWeight: 0.35 }, { amount: 100, riskWeight: 0.75 }, { amount: 300, riskWeight: 1 }];
+  it("weights exposures", () => expect(creditRwa(book)).toBeCloseTo(0 + 140 + 75 + 300, 8));
+  it("adds market and operational RWA to the denominator", () => expect(capitalRatio(60, book, 85)).toBeCloseTo(0.1, 10));
 });

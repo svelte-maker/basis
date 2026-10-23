@@ -4,8 +4,10 @@ import { money, num, pct } from "../format";
 import { bondPrice, bondYield, currentYield, forwardRate, macaulayDuration } from "@/lib/finance/fixedIncome";
 import { blackScholes, normCdf, putFromParity } from "@/lib/finance/options";
 import { irr } from "@/lib/finance/tvm";
+import { europeanWaterfall } from "@/lib/finance/funds";
+import { capitalRatio, creditRwa } from "@/lib/finance/banking";
 import { twoAsset } from "@/lib/finance/portfolio";
-import { interpolationLine, n, p, secantTrials, table } from "../explain";
+import { interpolationLine, irrTrialTable, irrTrials, n, p, secantTrials, table } from "../explain";
 
 export const fixedIncome: Template[] = [
   {
@@ -729,6 +731,157 @@ export const privateEquity: Template[] = [
       };
     },
   },
+  {
+    slug: "dividend-recap-irr",
+    title: "Dividend recap and IRR",
+    track: "Private Equity",
+    difficulty: "Medium",
+    concepts: ["LBO", "IRR", "Dividend recapitalisation"],
+    generate(rng) {
+      const eq0 = pick(rng, 100, 400, 10), k = pick(rng, 2, 3, 1), recap = eq0 * pick(rng, 0.3, 0.8, 0.05), exit = eq0 * pick(rng, 0.6, 2.5, 0.05);
+      const flows = [-eq0, 0, 0, 0, 0, exit];
+      flows[k] = recap;
+      const r = irr(flows), ans = r * 100;
+      const moic = (recap + exit) / eq0;
+      const noRecap = Math.pow(moic, 1 / 5) - 1, exitOnly = Math.pow(exit / eq0, 1 / 5) - 1;
+      const trials = irrTrials(flows, r);
+      const pr = (x: number) => pct(x, 4);
+      return {
+        blocks: [
+          { kind: "p", text: `A sponsor invests **${money(eq0)}m** of equity in a buyout at the start of year 1. At the end of **year ${k}** the company borrows more and pays the sponsor a **${money(recap, 1)}m** dividend (a dividend recap). At the end of **year 5** the sponsor sells its stake for **${money(exit, 1)}m**. There are no other cash flows; ignore fees and taxes.` },
+        ],
+        question: "What is the sponsor's IRR? Percentage to two decimals.",
+        answer: ans, unit: "%", tolerance: { abs: 0.03 },
+        solution: {
+          idea: [
+            "IRR is the single annual rate at which the money the sponsor gets back, discounted to day one, exactly equals what it put in. Unlike a money multiple, it cares about **when** the money comes back.",
+            `A dividend recap returns part of the investment early. The total money back (and so the MOIC) is the same whether the cash arrives in year ${k} or year 5, but on a profitable deal cash received earlier is worth more, so the recap raises IRR. That is why sponsors use recaps, and why LPs look at both IRR and MOIC.`,
+            "With cash flows in more than one year there is no closed-form answer: you find the rate by trial and error, or let `=IRR` do it.",
+          ],
+          formulas: [
+            { expr: `0 = −E₀ + D / (1 + r)^${k} + X / (1 + r)^5`, terms: [["E₀", "Equity invested at time 0"], ["D", `Recap dividend received at the end of year ${k}`], ["X", "Exit proceeds at the end of year 5"], ["r", "The IRR: the rate that makes the NPV zero"]] },
+            { expr: "Next guess = r₂ − NPV₂ × (r₂ − r₁) / (NPV₂ − NPV₁)", terms: [["r₁, r₂", "The last two rates tried"], ["NPV₁, NPV₂", "The NPV at each of them"]] },
+            { expr: "MOIC = (D + X) / E₀", terms: [["MOIC", "Multiple of invested capital: total money back over money in, ignoring timing"]] },
+          ],
+          steps: [
+            p(`Cash flows ($m), years 0 to 5: ${flows.map((x) => num(x, 1)).join(", ")}.`),
+            p(`**Trial 1:** at 0%, NPV is just the sum of the flows: ${num(trials[0].fx, 2)}. ${trials[0].fx > 0 ? "Positive, so the IRR is above 0%." : "Negative, so the IRR is below 0%: the sponsor gets back less than it put in."}`),
+            p(`**Trial 2:** at ${pr(trials[1].x)}, NPV = ${num(trials[1].fx, 2)}.`),
+            p(`**Interpolate.** ${interpolationLine(trials[0], trials[1], pr)} Repeat until NPV is essentially zero:`),
+            irrTrialTable(trials),
+            p(`IRR = **${pct(r)}**. MOIC = (${num(recap, 1)} + ${num(exit, 1)}) / ${num(eq0)} = ${moic.toFixed(2)}x.`),
+            p(`Cross-check: the same ${moic.toFixed(2)}x received all at exit would give ${moic.toFixed(2)}^(1/5) − 1 = ${pct(noRecap)}. ${r >= noRecap ? `The recap's early timing adds ${num(ans - noRecap * 100, 2)} percentage points of IRR.` : `Here the early timing costs ${num(noRecap * 100 - ans, 2)} percentage points, because the deal loses money (see below).`}`),
+          ],
+          meaning: [
+            ans >= 0
+              ? `The sponsor earns **${pct(r)}** a year on ${moic.toFixed(2)}x its money. ${ans >= 20 ? "That clears the 20 to 25% most buyout funds target." : "That is below the 20 to 25% most buyout funds target."}`
+              : `The IRR is negative (**${pct(r)}**): the sponsor gets back only ${moic.toFixed(2)}x what it invested. With a loss, the usual timing logic flips: at a negative rate, later cash is discounted **up**, so getting part of the money back early makes the IRR slightly worse, not better. The recap still reduced the sponsor's risk by banking cash before the exit.`,
+            exit < eq0 ? `The exit alone (${money(exit, 1)}m) is less than the original equity. Without the recap this deal ${moic >= 1 ? "would look like a loss; with it the sponsor has its money back plus some" : "loses even more"}. That is why recaps are sometimes called "taking chips off the table".` : `The recap took ${pct(recap / eq0, 0)} of the original equity off the table in year ${k}, de-risking the deal before the exit.`,
+            "The extra debt that funds a recap raises the company's leverage and interest bill. Lenders and boards weigh that risk against the sponsor's higher IRR.",
+          ],
+          mistakes: [
+            `Treating the dividend as if it arrived at exit: (${num(recap + exit, 1)} / ${num(eq0)})^(1/5) − 1 = ${pct(noRecap)}. Right MOIC, wrong IRR, because timing matters.`,
+            `Ignoring the dividend altogether: (${num(exit, 1)} / ${num(eq0)})^(1/5) − 1 = ${pct(exitOnly)}.`,
+            `Simple annualisation: (${moic.toFixed(2)} − 1) / 5 = ${pct((moic - 1) / 5)}. That is neither compounded nor timing-aware.`,
+            `Putting the dividend in the wrong year in the cash flow row. Year 0 is the investment date, so the year ${k} dividend is the ${k === 2 ? "3rd" : "4th"} value.`,
+          ],
+          excel: [
+            `\`=IRR({${flows.map((x) => n(x, 2)).join(",")}})\``,
+            `MOIC: \`=(${n(recap, 2)}+${n(exit, 2)})/${eq0}\`. Lay the flows out in a row with a 0 in every empty year: leaving a year out shifts everything after it.`,
+          ],
+        },
+      };
+    },
+  },
+  {
+    slug: "fund-waterfall-carry",
+    title: "Fund waterfall: GP carried interest",
+    track: "Private Equity",
+    difficulty: "Hard",
+    concepts: ["Fund economics", "Carried interest", "Distribution waterfall"],
+    generate(rng) {
+      const c = pick(rng, 100, 500, 10), mult = pick(rng, 1.3, 2.6, 0.02), yrs = pick(rng, 3, 7, 1);
+      const hurdle = 0.08, carry = 0.2;
+      const d = c * mult;
+      const w = europeanWaterfall({ contributed: c, proceeds: d, years: yrs, hurdle, carry });
+      const ans = w.gp;
+      const hurdleMult = Math.pow(1 + hurdle, yrs), prefFull = c * (hurdleMult - 1), cuFull = prefFull / 4;
+      const profit = d - c;
+      const afterRoc = d - w.returnOfCapital, afterPref = afterRoc - w.preferred, afterCu = afterPref - w.catchUp;
+      // Wrong answers people get
+      const noCatchUp = carry * Math.max(0, d - c - prefFull);
+      const simplePref = c * hurdle * yrs;
+      const simpleLeft = Math.max(0, d - c - simplePref);
+      const withSimple = Math.min(simpleLeft, simplePref / 4) + carry * Math.max(0, simpleLeft - simplePref / 4);
+      const zone = afterPref <= 0 ? "below" : afterCu <= 0 ? "catchup" : "full";
+      return {
+        blocks: [
+          { kind: "p", text: `A buyout fund's LPs contribute **${money(c)}m**, all invested at the start. After **${yrs} years** the fund has sold everything and distributes **${money(d, 1)}m** in total, all at the end of year ${yrs}. The fund uses a whole-fund (European) waterfall:` },
+          { kind: "table", head: ["Tier", "Terms"], rows: [
+            ["1. Return of capital", "100% to LPs until they have their contributions back"],
+            ["2. Preferred return", "100% to LPs until they have an 8% a year return, compounded annually"],
+            ["3. GP catch-up", "100% to the GP until it has received 20% of all profits distributed so far"],
+            ["4. Carried interest split", "80% to LPs, 20% to the GP"],
+          ] },
+          { kind: "p", text: "Ignore management fees and the GP's own commitment." },
+        ],
+        question: "How much carried interest does the GP receive, in $m? Two decimals.",
+        answer: ans, unit: "$m", tolerance: { abs: 0.02 },
+        solution: {
+          idea: [
+            "A private equity fund's general partner (GP) is paid mainly through **carried interest**: a share, usually 20%, of the profit it earns for its investors (LPs). The **waterfall** is the order in which each dollar of proceeds is paid out, like water filling a series of buckets: a bucket must be full before anything spills into the next.",
+            "LPs are protected first: they get their money back, then a minimum return (the **hurdle** or preferred return). Only profit above the hurdle produces carry.",
+            "The **catch-up** then gives the GP 100% of the next dollars until it has 20% of all profit paid so far, as if the hurdle had never existed. So once a fund clears the hurdle by enough, the GP ends up with exactly 20% of total profit. The hurdle decides **whether** the GP is paid, not how much it is paid once the fund does well. In between, the GP gets everything above the hurdle.",
+          ],
+          formulas: [
+            { expr: "Preferred return = C × ((1 + h)^T − 1)", terms: [["C", "Capital contributed"], ["h", "Hurdle rate, 8% a year"], ["T", "Years from contribution to distribution"]] },
+            { expr: "Full catch-up = carry / (1 − carry) × Preferred return = Preferred / 4", terms: [["carry", "GP share of profits, 20%"], ["Why", "After it, GP has 20% and LPs 80% of (pref + catch-up): catch-up = 0.2 × (pref + catch-up)"]] },
+            { expr: "GP carry = Catch-up + 20% × (D − C − Pref − Catch-up)", terms: [["D", "Total proceeds distributed"], ["Each tier", "Capped by whatever is left after the tiers above it"]] },
+          ],
+          steps: [
+            p(`Preferred return owed: ${money(c)}m × (1.08^${yrs} − 1) = ${money(c)}m × ${(hurdleMult - 1).toFixed(5)} = ${money(prefFull, 4)}m. Full catch-up would be ${num(prefFull, 4)} / 4 = ${money(cuFull, 4)}m.`),
+            p(`Hurdle test: LPs need ${money(c + prefFull, 2)}m (${hurdleMult.toFixed(4)}x) before any carry. The fund paid ${money(d, 1)}m (${mult.toFixed(2)}x).`),
+            table(["Tier", "Available", "To LPs", "To GP", "Left after"], [
+              ["1. Return of capital", num(d, 2), num(w.returnOfCapital, 2), "0.00", num(afterRoc, 2)],
+              ["2. Preferred return", num(afterRoc, 2), num(w.preferred, 2), "0.00", num(afterPref, 2)],
+              ["3. GP catch-up", num(afterPref, 2), "0.00", num(w.catchUp, 2), num(afterCu, 2)],
+              ["4. 80 / 20 split", num(afterCu, 2), num(0.8 * w.residual, 2), num(0.2 * w.residual, 2), "0.00"],
+              ["Total", num(d, 2), num(w.lp, 2), `**${num(ans, 2)}**`, ""],
+            ]),
+            p(`GP carried interest = ${num(w.catchUp, 2)} + 20% × ${num(w.residual, 2)} = **${money(ans, 2)}m**.`),
+            p(zone === "full"
+              ? `Cross-check: the catch-up completed, so the GP should hold exactly 20% of total profit: 20% × (${num(d, 2)} − ${num(c)}) = ${num(0.2 * profit, 2)}. ✓`
+              : zone === "catchup"
+                ? `Cross-check: the catch-up did not complete, so the GP gets every dollar above the LPs' ${money(c + prefFull, 2)}m hurdle amount: ${num(d, 2)} − ${num(c + prefFull, 2)} = ${num(ans, 2)}. That is ${pct(ans / profit, 1)} of profit, less than the full 20%.`
+                : `Cross-check: ${money(d, 1)}m is below the ${money(c + prefFull, 2)}m LPs need to clear the hurdle, so tiers 3 and 4 receive nothing and carry is zero.`),
+          ],
+          meaning: [
+            zone === "full"
+              ? `The fund cleared the hurdle with room to spare, so the GP earns the full 20% of profit (**${money(ans, 2)}m**) and LPs keep ${money(w.lp - c, 2)}m of profit. Above this point every extra dollar is split 80/20.`
+              : zone === "catchup"
+                ? `The fund sits in the **catch-up zone**: it beat the hurdle but not by enough for the GP to reach 20%. Here each extra dollar of proceeds goes entirely to the GP until it holds 20% of profit, so carry is very sensitive to the exit value.`
+                : `The fund returned ${mult.toFixed(2)}x, short of the ${hurdleMult.toFixed(3)}x needed for an 8% compounded return over ${yrs} years. The GP earns **no carry**, even though LPs made a profit of ${money(profit, 1)}m. This is the hurdle doing its job.`,
+            `The longer the hold, the higher the bar: at 8% a year the hurdle is ${hurdleMult.toFixed(3)}x after ${yrs} years. Slow exits erode carry even when the multiple looks healthy.`,
+            "Real funds call capital and distribute over many years, so the hurdle is tested on dated cash flows (an IRR test), not one multiple. Many US funds use a deal-by-deal (American) waterfall instead, which pays carry earlier and usually comes with a clawback.",
+          ],
+          mistakes: [
+            `Leaving out the catch-up (20% of profit above the hurdle): ${money(noCatchUp, 2)}m.`,
+            Math.abs(withSimple - ans) > 0.02
+              ? `Simple instead of compound hurdle (8% × ${yrs} = ${pct(hurdle * yrs, 0)} rather than ${pct(hurdleMult - 1, 2)}): ${money(withSimple, 2)}m.`
+              : `Simple instead of compound hurdle (8% × ${yrs} = ${pct(hurdle * yrs, 0)} rather than ${pct(hurdleMult - 1, 2)}). It happens not to change the answer here because the catch-up completes either way, but it moves the hurdle and gives the wrong carry for funds near it.`,
+            zone === "full"
+              ? `Taking 20% of total profit straight away gives ${money(0.2 * profit, 2)}m, the right answer here only because the catch-up completed. In the catch-up zone or below the hurdle it overstates carry.`
+              : `Taking 20% of total profit and ignoring the hurdle: ${money(0.2 * profit, 2)}m. That overstates carry whenever the catch-up has not completed.`,
+            `Taking 20% of total proceeds rather than profit: ${money(0.2 * d, 2)}m. Carry is a share of profit; LPs get their capital back first.`,
+          ],
+          excel: [
+            `Preferred return: \`=${c}*(1.08^${yrs}-1)\` → ${num(prefFull, 4)}.`,
+            `Carry in one formula: \`=MIN(MAX(${n(d, 2)}-${c}-${c}*(1.08^${yrs}-1),0),${c}*(1.08^${yrs}-1)/4)+0.2*MAX(${n(d, 2)}-${c}-${c}*(1.08^${yrs}-1)*1.25,0)\`. The \`MAX(…,0)\` stops a tier going negative when the fund falls short of it, and \`*1.25\` is pref plus a full catch-up.`,
+          ],
+        },
+      };
+    },
+  },
 ];
 
 export const portfolioRisk: Template[] = [
@@ -1115,6 +1268,67 @@ export const bankingCredit: Template[] = [
             `Dividing by debt instead of interest: ${((ebitda - da) / debt).toFixed(2)}x.`,
           ],
           excel: [`\`=(${ebitda}-${n(da, 2)})/(${n(debt, 2)}*${n(rate)})\``],
+        },
+      };
+    },
+  },
+  {
+    slug: "cet1-ratio",
+    title: "CET1 capital ratio",
+    track: "Banking & Credit",
+    difficulty: "Easy",
+    concepts: ["Bank capital", "Risk-weighted assets", "Basel III"],
+    generate(rng) {
+      const sov = pick(rng, 50, 300, 10), mort = pick(rng, 200, 800, 10), retail = pick(rng, 50, 300, 10), corp = pick(rng, 200, 900, 10), other = pick(rng, 50, 250, 5);
+      const book = [
+        { name: "Government bonds (AAA)", amount: sov, riskWeight: 0 },
+        { name: "Residential mortgages", amount: mort, riskWeight: 0.35 },
+        { name: "Retail loans", amount: retail, riskWeight: 0.75 },
+        { name: "Corporate loans (unrated)", amount: corp, riskWeight: 1 },
+      ];
+      const credit = creditRwa(book), rwa = credit + other;
+      const cet1 = Math.round(rwa * pick(rng, 0.04, 0.16, 0.0025) * 10) / 10;
+      const ans = capitalRatio(cet1, book, other) * 100;
+      const assets = sov + mort + retail + corp;
+      return {
+        blocks: [
+          { kind: "p", text: `A bank's loan and bond book ($m) with the risk weights to use (Basel II standardised approach):` },
+          { kind: "table", head: ["Exposure", "Amount ($m)", "Risk weight"], rows: book.map((b) => [b.name, num(b.amount), pct(b.riskWeight, 0)]) },
+          { kind: "p", text: `Risk-weighted assets for market and operational risk add **${money(other)}m**. The bank holds **${money(cet1, 1)}m** of Common Equity Tier 1 (CET1) capital.` },
+        ],
+        question: "What is the bank's CET1 ratio? Percentage to two decimals.",
+        answer: ans, unit: "%", tolerance: { abs: 0.01 },
+        solution: {
+          idea: [
+            "A bank's equity is the cushion that absorbs losses before depositors are hurt. Regulators ask how big that cushion is **relative to how risky the bank's assets are**, not relative to their size.",
+            "So each exposure is scaled by a risk weight: safe government bonds count for nothing, a secured mortgage for a third or so, an unsecured corporate loan in full. The total is risk-weighted assets (RWA), and the CET1 ratio is CET1 capital divided by RWA.",
+          ],
+          formulas: [
+            { expr: "RWA = Σ (Exposure × Risk weight) + Market and operational RWA", terms: [["Exposure", "Amount lent or invested in each category"], ["Risk weight", "Regulator-set percentage reflecting credit risk"], ["Market and operational RWA", "Capital charges for trading and operational risk, already expressed as RWA"]] },
+            { expr: "CET1 ratio = CET1 capital / RWA", terms: [["CET1 capital", "Common shares plus retained earnings, less deductions such as goodwill: the highest-quality capital"]] },
+          ],
+          steps: [
+            table(["Exposure", "Amount", "Risk weight", "RWA"], [
+              ...book.map((b) => [b.name, num(b.amount), pct(b.riskWeight, 0), num(b.amount * b.riskWeight, 1)]),
+              ["Credit RWA", num(assets), "", num(credit, 1)],
+            ]),
+            p(`Total RWA = ${num(credit, 1)} + ${num(other)} = ${money(rwa, 1)}m.`),
+            p(`CET1 ratio = ${num(cet1, 1)} / ${num(rwa, 1)} = **${ans.toFixed(2)}%**.`),
+          ],
+          meaning: [
+            ans < 4.5
+              ? `At ${ans.toFixed(2)}% the bank is **below the 4.5% Basel III minimum**. Regulators would require it to raise capital or shrink risk-weighted assets at once.`
+              : ans < 7
+                ? `At ${ans.toFixed(2)}% the bank meets the 4.5% minimum but is inside the 2.5% conservation buffer (7% in total), so it faces limits on dividends, buybacks and bonuses until it rebuilds capital.`
+                : `At ${ans.toFixed(2)}% the bank clears the 4.5% minimum plus the 2.5% conservation buffer (7%). Large banks also face surcharges and stress-test buffers, so in practice many target 11 to 14%.`,
+            "The weights here are the Basel II standardised ones. Under the 2017 Basel III reforms a residential mortgage's weight depends on its loan-to-value ratio (20% to 70%), so the same book can produce a different RWA.",
+            `Credit RWA are ${pct(credit / assets, 0)} of exposures (the bank's RWA density). Moving lending from corporate loans to mortgages would lower RWA and raise the ratio without adding a dollar of capital, which is why regulators also watch a simple leverage ratio.`,
+          ],
+          mistakes: [
+            `Dividing by total exposures instead of RWA: ${num(cet1, 1)} / ${num(assets)} = ${pct(cet1 / assets)}. That is closer to a leverage ratio.`,
+            `Leaving out market and operational RWA: ${num(cet1, 1)} / ${num(credit, 1)} = ${pct(cet1 / credit)}.`,
+          ],
+          excel: [`\`=${n(cet1, 1)}/(SUMPRODUCT({${book.map((b) => b.amount).join(",")}},{${book.map((b) => b.riskWeight).join(",")}})+${other})\``],
         },
       };
     },
