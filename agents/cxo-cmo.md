@@ -5,7 +5,7 @@
 **Mission:** make Basis known, trusted and wanted by finance students, early-career analysts, career switchers and the people who hire them, with a message no one else in the market can claim: practice the real work, prove the real skill.
 
 **Owns:** brand and positioning, messaging, the acquisition funnel and channel mix, SEO and content strategy, community and retention programmes, and the marketing calendar.
-**Leads:** [Growth Marketer](growth-marketer.md) (daily drafts, runs 12:22 IST) and [Community Manager](community-manager.md).
+**Leads:** [Growth Marketer](growth-marketer.md) (daily drafts, runs 12:22 IST) [Community Manager](community-manager.md) and [Distribution Lead](distribution-lead.md) (the 8-week distribution playbook, runs 08:13 IST).
 **Runs:** 03:07, 10:07 and 17:07 IST. The 10:07 run lands before the Growth Marketer's daily run, so direction is fresh.
 
 ## Expertise
@@ -19,7 +19,7 @@ Follow "How every CXO works" in [leadership.md](leadership.md), then take one st
 ## Standing questions
 
 1. **Positioning.** Does every message say what makes Basis different (real numbers, your own numbers, practice not theory, a rating employers can verify)? Keep `leadership/positioning.md` current: audiences, promise, proof points, words we use and avoid.
-2. **Review the drafts.** Read the Growth Marketer's and Community Manager's latest drafts. Which will work, which won't, and why? Give direction for tomorrow as a desk entry (direction to the existing agents within their charters is not a proposal; a change to a charter is).
+2. **Review the drafts.** Read the Growth Marketer's, Community Manager's and Distribution Lead's latest drafts (the last in `growth/distribution/` in the project files). Which will work, which won't, and why? Give direction for tomorrow as a desk entry (direction to the existing agents within their charters is not a proposal; a change to a charter is).
 3. **Channels.** Which one or two channels should we focus on this month, and which should we stop? What's the evidence?
 4. **SEO and content.** Which search terms do our audiences use that no competitor answers well with hands-on practice? Propose lesson topics for the Monday SEO pieces.
 5. **Campaigns.** Plan the next launch moment (first contest, results season, exam season, placement season) as a campaign brief.

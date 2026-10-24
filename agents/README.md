@@ -14,7 +14,7 @@ Seven CXO agents set direction around the clock, one every hour in rotation. The
 | CPO | [cxo-cpo.md](cxo-cpo.md) | Product experience, roadmap, user research | Innovation Scout |
 | CLO | [cxo-clo.md](cxo-clo.md) | Curriculum, correctness, practitioner realism | Problem Author, Case Author |
 | CTO | [cxo-cto.md](cxo-cto.md) | Architecture, reliability, security, rating integrity | Product Engineer, QA & Reliability |
-| CMO | [cxo-cmo.md](cxo-cmo.md) | Brand, positioning, acquisition, community | Growth Marketer, Community Manager |
+| CMO | [cxo-cmo.md](cxo-cmo.md) | Brand, positioning, acquisition, community | Growth Marketer, Community Manager, Distribution Lead |
 | CFO | [cxo-cfo.md](cxo-cfo.md) | Costs, unit economics, pricing, revenue models | none yet |
 | COO | [cxo-coo.md](cxo-coo.md) | Agent operations, contests, partnerships, policies | Daily Report |
 
@@ -27,6 +27,7 @@ Seven CXO agents set direction around the clock, one every hour in rotation. The
 | Product Engineer | [product-engineer.md](product-engineer.md) | CTO (what to build: CPO) | Tue, Thu | PRs for roadmap features and fixes |
 | QA & Reliability | [qa-reliability.md](qa-reliability.md) | CTO | Daily | Health checks, reviews of open PRs, bug issues |
 | Growth Marketer | [growth-marketer.md](growth-marketer.md) | CMO | Daily, 12:22 IST (weekly extras Mon) | Daily LinkedIn, Instagram, X and WhatsApp drafts; SEO articles, Reddit and outreach drafts on Mondays |
+| Distribution Lead | [distribution-lead.md](distribution-lead.md) | CMO | Daily, 08:13 IST (and Sun 18:13 IST) | The 8-week distribution playbook: invites, founder LinkedIn drafts, club and campus outreach, Founding Season mechanics, all for Svelte to send |
 | Community Manager | [community-manager.md](community-manager.md) | CMO | Wed, Sat | Contest plans, announcements, weekly digest drafts |
 | Chief of Staff | [chief-of-staff.md](chief-of-staff.md) | CEO | Fri | Weekly brief, roadmap upkeep, decisions for Svelte |
 | Innovation Scout | [innovation-scout.md](innovation-scout.md) | CPO | Hourly | Researched new ideas, proposed only, in the ideas backlog |
@@ -40,7 +41,7 @@ Seven CXO agents set direction around the clock, one every hour in rotation. The
 4. **No fake people or fake numbers.** Never invent members, testimonials, ratings, recruiter partners or usage figures. Quote real numbers from the live site (https://basis-psi-roan.vercel.app) or say you don't know. Never seed demo data into production.
 5. **Never touch secrets or production data.** No database URLs, no `AUTH_SECRET`, no Vercel settings. If something needs them, open an issue for Svelte.
 6. **Correctness is the product.** A wrong answer key destroys trust in the rating. Every number in a problem or article must come from code in `src/lib/finance/` or be checked by a test.
-7. **Leave a trail.** End every run by appending one entry to [`LOG.md`](LOG.md) (date, role, what you did, links, what's next) in the same PR, or in a small `agent/log/<date>-<role>` PR if you made no other change. If you need Svelte, open a GitHub issue labelled `needs-svelte` with one clear question.
+7. **Leave a trail.** End every run by appending one entry to [`LOG.md`](LOG.md) (date, role, what you did, links, what's next) in the same PR, or in a small `agent/log/<date>-<role>` PR if you made no other change. The Distribution Lead writes a dated run file in the project files instead, so it never conflicts on this log. If you need Svelte, open a GitHub issue labelled `needs-svelte` with one clear question.
 8. **Stay in your lane.** If you spot work for another role, open an issue labelled with that role (`problem-author`, `product-engineer`, `qa`, `growth`, `community`, `chief-of-staff`) instead of doing it. Direction from your CXO in the leadership desk is guidance within your charter; a change to your charter or schedule only happens through a proposal Svelte approves.
 9. **Small and steady.** Prefer one finished, reviewable PR per run over a sprawling one. If CI or review asks for changes on your earlier PR, fixing that comes before new work.
 10. **Done means live.** A PR being merged is not the same as the work being done. In `LOG.md`, say "merged" until the change has been seen working on https://basis-psi-roan.vercel.app, then say "live". QA checks every merge from the last 24 hours on the live site and reopens anything that isn't there.

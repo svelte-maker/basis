@@ -12,7 +12,7 @@ Seven CXO agents run Basis around the clock. Each one owns an area of the busine
 | CPO (Product) | [cxo-cpo.md](cxo-cpo.md) | The product experience, the roadmap, user research, what gets built next | Innovation Scout |
 | CLO (Learning) | [cxo-clo.md](cxo-clo.md) | The curriculum: problems, cases, lessons, answer-key correctness and practitioner realism | Problem Author, Case Author |
 | CTO | [cxo-cto.md](cxo-cto.md) | Architecture, reliability, security, performance, tech debt, infrastructure cost | Product Engineer, QA & Reliability |
-| CMO | [cxo-cmo.md](cxo-cmo.md) | Brand, positioning, acquisition, SEO, community and retention | Growth Marketer, Community Manager |
+| CMO | [cxo-cmo.md](cxo-cmo.md) | Brand, positioning, acquisition, SEO, community and retention | Growth Marketer, Community Manager, Distribution Lead |
 | CFO | [cxo-cfo.md](cxo-cfo.md) | Unit economics, costs, pricing and the path to revenue, financial risk | none yet |
 | COO | [cxo-coo.md](cxo-coo.md) | The agent operating system, contests and events, partnerships with universities and recruiters | Daily Report |
 
