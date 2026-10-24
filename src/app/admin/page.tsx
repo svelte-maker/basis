@@ -5,12 +5,15 @@ import { phaseOf } from "@/lib/contestScoring";
 import { TEMPLATES, TRACKS } from "@/lib/problems";
 import { deleteContest } from "../actions/admin";
 import { ContestForm } from "./ContestForm";
+import { CONTEST_PRESETS } from "@/lib/contestPresets";
 
 export const metadata = { title: "Admin" };
 export const dynamic = "force-dynamic";
 
-export default async function AdminPage() {
+export default async function AdminPage({ searchParams }: { searchParams: Promise<{ preset?: string }> }) {
   await requireRole(["ADMIN"], "/admin");
+  const { preset: presetId } = await searchParams;
+  const preset = presetId ? CONTEST_PRESETS[presetId]?.preset : undefined;
   const [members, recruiters, subs, posts, contests] = await Promise.all([
     db.user.count({ where: { role: "MEMBER" } }), db.user.count({ where: { role: "RECRUITER" } }),
     db.submission.count(), db.post.count(),
@@ -22,7 +25,7 @@ export default async function AdminPage() {
       <div className="kpis">
         {[["Members", members], ["Recruiters", recruiters], ["Submissions", subs], ["Posts", posts], ["Problem templates", TEMPLATES.length]].map(([l, v]) => <div key={l} className="kpi"><span className="v">{v}</span><span className="l">{l}</span></div>)}
       </div>
-      <ContestForm templates={TEMPLATES.map(({ slug, title, track, difficulty }) => ({ slug, title, track, difficulty }))} tracks={TRACKS} />
+      <ContestForm templates={TEMPLATES.map(({ slug, title, track, difficulty }) => ({ slug, title, track, difficulty }))} tracks={TRACKS} key={presetId ?? "blank"} preset={preset} presets={Object.entries(CONTEST_PRESETS).map(([id, p]) => ({ id, label: p.label }))} />
       <section className="stack-sm"><h2>Contests</h2>
         <div className="panel table-box"><table className="data"><thead><tr><th>Title</th><th>Status</th><th>Starts (UTC)</th><th className="r">Registered</th><th></th></tr></thead><tbody>
           {contests.map((c) => { const ph = phaseOf(c); return (

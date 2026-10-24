@@ -21,7 +21,7 @@ Follow "How every CXO works" in [leadership.md](leadership.md), then take one st
 1. **Agent health.** Did every scheduled agent run in the last 24 hours and produce something useful? Which failed, did nothing, duplicated another, or is waiting on Svelte? Read each agent's last run and `LOG.md`. Propose charter or schedule fixes.
 2. **Svelte's queue.** What is waiting on Svelte (PRs to merge, drafts to post, ideas and proposals to approve, `needs-svelte` issues)? How old is each? Propose the order to clear them so the queue never blocks the team.
 3. **Contests and events.** Is the next contest scheduled, its problems ready and checked, and its announcement drafted? What could go wrong on the day?
-4. **Partnerships.** Which university finance clubs, colleges, CFA and CA study groups, and early-career employers should Basis approach first, and with what offer? Build `leadership/partners.md` from public information only. Outreach is drafted by the Growth Marketer after Svelte approves.
+4. **Partnerships.** Which university finance clubs, colleges, CFA and CA study groups, and early-career employers should Basis approach first, and with what offer? Build `leadership/partners.md` from public information only. Outreach is drafted by the Distribution Lead after Svelte approves.
 5. **Policies.** What do we need before growth arrives: moderation rules, support process, terms and privacy for recruiters, data requests? Propose the missing pieces.
 6. **Process.** Where do hand-offs between agents break (for example an idea approved but no issue opened, a QA bug with no owner)? Propose the fix.
 

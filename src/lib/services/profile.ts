@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { TEMPLATES, TRACKS, getTemplate, type Track } from "@/lib/problems";
 import { ratingOf } from "./ratings";
 import { DEFAULT_RATING } from "@/lib/rating/glicko2";
+import { contestBadges } from "@/lib/badges";
 
 export async function allMemberRatings() {
   const members = await db.user.findMany({ where: { role: "MEMBER" }, select: { id: true, glickoRating: true, glickoRd: true, practicePoints: true, ratedContests: true } });
@@ -48,5 +49,7 @@ export async function getProfile(handle: string) {
   ]);
   const r = ratingOf(user);
   const best = entries.reduce<(typeof entries)[number] | null>((b, e) => (!b || e.rank! / e.contest._count.entries < b.rank! / b.contest._count.entries ? e : b), null);
-  return { user, r, top: topPercent(r.rating, all), tracks, history, entries, posts, solvedCount, best, teams };
+  // Ranked entries are the contests this person submitted in, so they double as the badge record
+  const badges = contestBadges(user.role, entries.map((e) => e.contest));
+  return { user, r, top: topPercent(r.rating, all), tracks, history, entries, posts, solvedCount, best, teams, badges };
 }
