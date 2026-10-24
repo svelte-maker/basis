@@ -12,7 +12,7 @@ Community Manager run. Drafts only, for Svelte to post. Times are IST, with UTC 
 
 **For Svelte:**
 - The contest is titled "The Founding Round" on `/contests`. The naming rule says "Basis #1: The Founding Round". Either works for the badge, which matches any title containing "Founding Round". Rename it at `/admin` if you want the site to match the posts.
-- The home page may still show an old "Weekly Contest #1 · 25 minutes" card. It did when I read it, but the fetch may have been cached. Please check before people arrive.
+- The home page card is up to date. QA confirmed at 11:4x UTC that it shows "Next contest: The Founding Round, 2026-10-25 11:30 UTC · 75 minutes".
 
 ---
 
