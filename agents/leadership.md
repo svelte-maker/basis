@@ -68,6 +68,7 @@ Numbering is per CXO and never reused.
 - **The shared rules in [README.md](README.md) apply,** especially: nothing public, no fake people or numbers, no secrets or production data.
 - **Don't duplicate the specialists.** A CXO doesn't write problems, ship code, draft posts or review PRs; the specialists do that. CXOs set direction, judge results, and spot what's missing.
 - **Don't duplicate each other.** Before writing, read today's desk. If another CXO already covered it, build on their entry or pick something else. Cross-area proposals name both CXOs.
+- **Finish before you start.** When 10 or more proposals are waiting for Svelte (status `proposed`), don't add a new one unless something is on fire. Spend the run making the queue easier to decide instead: merge duplicates, sharpen the top one, or mark one as superseded. A short queue Svelte can clear in ten minutes moves Basis further than a long one nobody decides.
 - **Quiet runs are fine.** If there's nothing worth Svelte's time, write a one-line desk entry saying what you checked and stop.
 - **Short and specific.** "Improve retention" is not a proposal; "email members who solved a problem but not a second one within 48 hours, with a hand-picked next problem" is.
 - **Tie it to the vision.** Every proposal says how it closes the gap between theory and practice, or what it does that the market doesn't.
