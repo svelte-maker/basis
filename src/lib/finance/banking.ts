@@ -16,3 +16,17 @@ export function capitalRatio(capital: number, exposures: Exposure[], otherRwa = 
   if (rwa <= 0) throw new RangeError("RWA must be positive");
   return capital / rwa;
 }
+
+export type LoanSizing = { byLtv: number; byDscr: number; maxLoan: number; binding: "LTV" | "DSCR" };
+
+/**
+ * Commercial real estate loan sizing: the largest loan that passes both the loan-to-value cap and the
+ * minimum debt service coverage ratio. The DSCR limit is the loan whose level annual payment
+ * (interest plus amortisation over `years`) equals NOI / minDscr, i.e. the PV of that annuity.
+ */
+export function sizeLoan(i: { value: number; noi: number; maxLtv: number; minDscr: number; rate: number; years: number }): LoanSizing {
+  const byLtv = i.value * i.maxLtv;
+  const payment = i.noi / i.minDscr;
+  const byDscr = (payment * (1 - Math.pow(1 + i.rate, -i.years))) / i.rate;
+  return byLtv <= byDscr ? { byLtv, byDscr, maxLoan: byLtv, binding: "LTV" } : { byLtv, byDscr, maxLoan: byDscr, binding: "DSCR" };
+}

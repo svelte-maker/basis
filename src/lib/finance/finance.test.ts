@@ -6,11 +6,12 @@ import { binomial, blackScholes, impliedVol, putFromParity } from "./options";
 import { runDcf, dcfSensitivity, type DcfInput } from "./dcf";
 import { runLbo } from "./lbo";
 import { computeRatios, dupont } from "./ratios";
-import { minVarianceWeight, twoAsset, maxDrawdown, parametricVaR } from "./portfolio";
+import { minVarianceWeight, twoAsset, maxDrawdown, parametricVaR, parametricES } from "./portfolio";
+import { futuresFairValue } from "./futures";
 import { summarize, impliedPerShare } from "./comps";
 import { median, quantile } from "./stats";
 import { europeanWaterfall } from "./funds";
-import { capitalRatio, creditRwa } from "./banking";
+import { capitalRatio, creditRwa, sizeLoan } from "./banking";
 
 describe("time value of money", () => {
   it("npv matches hand calculation", () => expect(npv(0.1, [-1000, 300, 400, 500])).toBeCloseTo(-21.04, 2));
@@ -206,4 +207,28 @@ describe("bank capital", () => {
   const book = [{ amount: 200, riskWeight: 0 }, { amount: 400, riskWeight: 0.35 }, { amount: 100, riskWeight: 0.75 }, { amount: 300, riskWeight: 1 }];
   it("weights exposures", () => expect(creditRwa(book)).toBeCloseTo(0 + 140 + 75 + 300, 8));
   it("adds market and operational RWA to the denominator", () => expect(capitalRatio(60, book, 85)).toBeCloseTo(0.1, 10));
+});
+
+describe("expected shortfall", () => {
+  // Standard normal: ES at 97.5% = φ(1.95996) / 0.025 = 0.058445 / 0.025 = 2.3378σ, close to 99% VaR (2.3263σ).
+  it("97.5% normal ES is 2.338 standard deviations", () => expect(parametricES(1, 1, 0.975)).toBeCloseTo(2.3378, 3));
+  it("is always larger than VaR at the same confidence", () => expect(parametricES(1, 1, 0.99)).toBeGreaterThan(2.3263));
+});
+
+describe("futures", () => {
+  // 1000 × e^((0.05 − 0.02) × 0.5) = 1000 × e^0.015 = 1015.113
+  it("cost of carry with a dividend yield", () => expect(futuresFairValue(1000, 0.05, 0.02, 0.5)).toBeCloseTo(1015.113, 3));
+  it("no yield reduces to S e^(rt)", () => expect(futuresFairValue(100, 0.04, 0, 2)).toBeCloseTo(100 * Math.exp(0.08), 10));
+});
+
+describe("loan sizing", () => {
+  // Debt service allowed = 1,000,000 / 1.25 = 800,000; 25-year annuity factor at 6% = 12.78336
+  const base = { noi: 1_000_000, minDscr: 1.25, rate: 0.06, years: 25 };
+  it("DSCR binds", () => {
+    const s = sizeLoan({ ...base, value: 20_000_000, maxLtv: 0.65 });
+    expect(s.byDscr).toBeCloseTo(800_000 * 12.783356, 0);
+    expect(s.binding).toBe("DSCR");
+    expect(s.maxLoan).toBe(s.byDscr);
+  });
+  it("LTV binds", () => expect(sizeLoan({ ...base, value: 12_000_000, maxLtv: 0.75 }).maxLoan).toBe(9_000_000));
 });
