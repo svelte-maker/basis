@@ -249,7 +249,7 @@ export const optionsForwards: Lesson = {
     { q: "Which strategy profits from a big move in either direction?", options: ["Covered call", "Long straddle", "Short put", "Protective put"], answer: 1, why: "A long call plus a long put at the same strike gains if the share moves far either way." },
   ],
   apply: {
-    problems: ["forward-price", "put-call-parity", "straddle-payoff", "one-step-binomial", "black-scholes-call"],
+    problems: ["forward-price", "put-call-parity", "straddle-payoff", "one-step-binomial", "black-scholes-call", "index-futures-mispricing"],
     models: [],
     cases: [],
     tools: ["options"],
@@ -355,7 +355,7 @@ export const portfolioRisk: Lesson = {
     { q: "Return 12%, risk-free 6%, volatility 15%. Sharpe ratio:", options: ["0.4", "0.8", "1.25", "2.0"], answer: 0, why: "(12 − 6) ÷ 15 = 0.4." },
   ],
   apply: {
-    problems: ["portfolio-expected-return", "two-asset-volatility", "sharpe-ratio", "jensens-alpha", "parametric-var"],
+    problems: ["portfolio-expected-return", "two-asset-volatility", "sharpe-ratio", "jensens-alpha", "parametric-var", "expected-shortfall"],
     models: [],
     cases: [],
     tools: ["risk"],
@@ -481,7 +481,7 @@ export const creditAnalysis: Lesson = {
     { q: "Under RBI rules a loan becomes an NPA when it is overdue for more than:", options: ["30 days", "60 days", "90 days", "180 days"], answer: 2, why: "The 90-day overdue rule." },
   ],
   apply: {
-    problems: ["debt-service-coverage", "expected-credit-loss", "net-interest-margin", "leverage-and-coverage", "loan-payment", "cet1-ratio"],
+    problems: ["debt-service-coverage", "expected-credit-loss", "net-interest-margin", "leverage-and-coverage", "loan-payment", "cet1-ratio", "cre-loan-sizing"],
     models: ["term-loan-amortisation"],
     cases: [],
     tools: ["loan", "ratios"],

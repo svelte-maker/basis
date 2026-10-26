@@ -2,10 +2,12 @@ import type { Template } from "../types";
 import { pick } from "../rng";
 import { money, num, pct } from "../format";
 import { bondPrice, bondYield, currentYield, forwardRate, macaulayDuration } from "@/lib/finance/fixedIncome";
-import { blackScholes, normCdf, putFromParity } from "@/lib/finance/options";
+import { blackScholes, normCdf, normPdf, putFromParity } from "@/lib/finance/options";
 import { irr } from "@/lib/finance/tvm";
 import { europeanWaterfall } from "@/lib/finance/funds";
-import { capitalRatio, creditRwa } from "@/lib/finance/banking";
+import { capitalRatio, creditRwa, sizeLoan } from "@/lib/finance/banking";
+import { futuresFairValue } from "@/lib/finance/futures";
+import { parametricES } from "@/lib/finance/portfolio";
 import { twoAsset } from "@/lib/finance/portfolio";
 import { interpolationLine, irrTrialTable, irrTrials, n, p, secantTrials, table } from "../explain";
 
@@ -574,6 +576,60 @@ export const derivatives: Template[] = [
       };
     },
   },
+  {
+    slug: "index-futures-mispricing",
+    title: "Index futures fair value and mispricing",
+    track: "Derivatives",
+    difficulty: "Medium",
+    concepts: ["Futures", "Cost of carry", "Index arbitrage"],
+    generate(rng) {
+      const spot = pick(rng, 3000, 6000, 10), r = pick(rng, 0.03, 0.08, 0.0025), q = pick(rng, 0.005, 0.03, 0.0025), days = pick(rng, 30, 180, 30);
+      const mag = pick(rng, 3, 25, 0.5), sign = rng() < 0.5 ? 1 : -1;
+      const t = days / 365;
+      const fair = futuresFairValue(spot, r, q, t);
+      const quoted = Math.round((fair + sign * mag) * 10) / 10;
+      const ans = quoted - fair;
+      const noDiv = futuresFairValue(spot, r, 0, t), annual = spot * Math.pow((1 + r) / (1 + q), t);
+      const rich = ans > 0;
+      return {
+        blocks: [
+          { kind: "p", text: `A stock index stands at **${num(spot)}**. Its futures contract expiring in **${days} days** trades at **${num(quoted, 1)}**. The risk-free rate is **${pct(r)}** and the index's dividend yield is **${pct(q)}**, both annual and continuously compounded. Use T = days / 365 and ignore transaction costs.` },
+        ],
+        question: "By how many index points is the futures mispriced (quoted price minus fair value)? Negative if the futures is cheap. Two decimals.",
+        answer: ans, unit: "", tolerance: { abs: 0.05 },
+        solution: {
+          idea: [
+            "You can own the index at expiry in two ways: buy the futures now and pay at expiry, or buy the stocks today with borrowed money and hold them. Both end in the same place, so they must cost the same, or someone can buy the cheap route, sell the expensive one and pocket the difference risk-free.",
+            "Holding the stocks costs interest on the money tied up (r) but earns the dividends along the way (q). The futures buyer pays neither and gets neither, so the fair futures price is the spot grown at the **net** cost of carry, r − q.",
+          ],
+          formulas: [
+            { expr: "F* = S × e^((r − q) × T)", terms: [["F*", "Fair (no-arbitrage) futures price"], ["S", "Index level today"], ["r", "Risk-free rate, continuous"], ["q", "Dividend yield, continuous"], ["T", "Years to expiry = days / 365"]] },
+            { expr: "Mispricing = F_quoted − F*", terms: [["Positive", "Futures rich: sell futures, buy the index (cash and carry)"], ["Negative", "Futures cheap: buy futures, sell the index (reverse cash and carry)"]] },
+          ],
+          steps: [
+            p(`T = ${days} / 365 = ${t.toFixed(6)} years.`),
+            p(`Net carry = r − q = ${pct(r)} − ${pct(q)} = ${pct(r - q, 3)}. Exponent = ${n(r - q, 5)} × ${t.toFixed(6)} = ${((r - q) * t).toFixed(6)}.`),
+            p(`Growth factor = e^${((r - q) * t).toFixed(6)} = ${Math.exp((r - q) * t).toFixed(6)}.`),
+            p(`F* = ${num(spot)} × ${Math.exp((r - q) * t).toFixed(6)} = ${num(fair, 2)}.`),
+            p(`Mispricing = ${num(quoted, 1)} − ${num(fair, 2)} = **${num(ans, 2)}** index points.`),
+          ],
+          meaning: [
+            rich
+              ? `The futures is **rich** by ${num(ans, 2)} points. Cash and carry: borrow ${num(spot)} at ${pct(r)}, buy the index basket and sell the futures at ${num(quoted, 1)}. At expiry deliver (or cash-settle) at the futures price, repay the loan, and the dividends collected along the way cover the q part of the carry. You lock in about ${num(ans, 2)} points per unit of the index.`
+              : `The futures is **cheap** by ${num(-ans, 2)} points. Reverse cash and carry: short the index basket, invest the ${num(spot)} proceeds at ${pct(r)} and buy the futures at ${num(quoted, 1)}. You owe the dividends to the stock lender but earn interest on the cash, and lock in about ${num(-ans, 2)} points per unit.`,
+            `${num(Math.abs(ans), 2)} points is ${pct(Math.abs(ans) / spot, 3)} of the index. Real arbitrageurs face commissions, bid-ask spreads, stamp duty, borrowing costs on the short side and dividend uncertainty, so small gaps like this often persist inside a no-arbitrage band rather than being traded away.`,
+            `Traders watch the basis (F − S): here it is ${num(quoted - spot, 1)} points against a fair basis of ${num(fair - spot, 2)}, so the futures trades at a ${rich ? "premium" : "discount"} to fair value.`,
+          ],
+          mistakes: [
+            `Ignoring the dividend yield: F* = ${num(noDiv, 2)}, so the mispricing looks like ${num(quoted - noDiv, 2)}. Dividends lower the cost of holding the stocks.`,
+            `Using annual compounding when the rates are continuous: F* = ${num(annual, 2)}, mispricing ${num(quoted - annual, 2)}.`,
+            `Reading the basis (F − S = ${num(quoted - spot, 1)}) as the mispricing. Some basis is fair: it is the carry.`,
+          ],
+          excel: [`\`=${n(quoted, 1)}-${spot}*EXP((${n(r, 4)}-${n(q, 4)})*${days}/365)\``],
+        },
+      };
+    },
+  },
 ];
 
 export const privateEquity: Template[] = [
@@ -1101,6 +1157,54 @@ export const portfolioRisk: Template[] = [
       };
     },
   },
+  {
+    slug: "expected-shortfall",
+    title: "Expected shortfall (normal)",
+    track: "Portfolio & Risk",
+    difficulty: "Medium",
+    concepts: ["Expected shortfall", "VaR", "Market risk"],
+    generate(rng) {
+      const v = pick(rng, 1, 50, 1) * 1_000_000, s = pick(rng, 0.1, 0.4, 0.01);
+      const z = 1.96, daily = s / Math.sqrt(252), phi = normPdf(z);
+      const ans = parametricES(v, daily, 0.975, z);
+      const sd$ = v * daily, varAmt = sd$ * z;
+      return {
+        blocks: [{ kind: "p", text: `A **${money(v)}** equity position has annual volatility of **${pct(s)}**. Assume daily returns are normal with zero mean, and 252 trading days a year. The 97.5% one-tailed z is **1.96**.` }],
+        question: "What is the 1-day 97.5% expected shortfall, in dollars?",
+        answer: ans, unit: "$", tolerance: { rel: 0.002 },
+        solution: {
+          idea: [
+            "VaR is a threshold: the loss that is only exceeded on the worst 2.5% of days. It says nothing about **how bad** those worst days are.",
+            "Expected shortfall (ES, also called conditional VaR) answers that: it is the **average** loss on the days that are worse than VaR. Because it averages the whole tail, it is always larger than VaR at the same confidence. Basel's market-risk rules switched from 99% VaR to 97.5% ES for exactly this reason.",
+            "For a normal distribution the tail average has a closed form: the height of the bell curve at z, divided by the tail probability.",
+          ],
+          formulas: [
+            { expr: "σ_daily = σ_annual / √252", terms: [["252", "Trading days a year"], ["√", "Volatility scales with the square root of time"]] },
+            { expr: "φ(z) = e^(−z²/2) / √(2π)", terms: [["φ(z)", "Standard normal density (height of the bell curve) at z"], ["z", "1.96 for 97.5%"]] },
+            { expr: "ES = Position × σ_daily × φ(z) / (1 − c)", terms: [["c", "Confidence level, 97.5%"], ["1 − c", "Tail probability, 2.5%"]] },
+          ],
+          steps: [
+            p(`σ_daily = ${pct(s)} / √252 = ${pct(s)} / ${Math.sqrt(252).toFixed(4)} = ${pct(daily, 4)}. In dollars: ${money(v)} × ${pct(daily, 4)} = ${money(sd$)}.`),
+            p(`φ(1.96) = e^(−1.96² / 2) / √(2π) = e^(−1.9208) / 2.506628 = ${Math.exp(-1.9208).toFixed(6)} / 2.506628 = ${phi.toFixed(6)}.`),
+            p(`ES multiple = ${phi.toFixed(6)} / 0.025 = ${(phi / 0.025).toFixed(5)} standard deviations.`),
+            p(`ES = ${money(sd$)} × ${(phi / 0.025).toFixed(5)} = **${money(ans)}**.`),
+            p(`Compare: 97.5% VaR = ${money(sd$)} × 1.96 = ${money(varAmt)}. ES is ${pct(ans / varAmt - 1, 1)} larger.`),
+          ],
+          meaning: [
+            `On the worst 2.5% of days (about six trading days a year) the position loses at least ${money(varAmt)}, and **${money(ans)}** on average.`,
+            "The 97.5% normal ES (2.338σ) is almost exactly the 99% normal VaR (2.326σ). That is why the Basel switch was calibrated to keep capital roughly unchanged for normal returns; the difference shows up when tails are fatter than normal, where ES rises and VaR barely notices.",
+            "Real returns have fat tails, so a normal ES understates the true tail. Historical or stressed ES is used alongside it.",
+          ],
+          mistakes: [
+            `Reporting VaR instead of ES: ${money(varAmt)}.`,
+            `Dividing by the confidence (0.975) instead of the tail (0.025): ${money(sd$ * phi / 0.975)}.`,
+            `Using annual volatility without scaling to one day: ${money(v * s * phi / 0.025)}.`,
+          ],
+          excel: [`\`=${v}*${n(s)}/SQRT(252)*NORM.S.DIST(1.96,FALSE)/0.025\` (the \`FALSE\` returns the density φ, not the cumulative probability).`],
+        },
+      };
+    },
+  },
 ];
 
 export const bankingCredit: Template[] = [
@@ -1329,6 +1433,60 @@ export const bankingCredit: Template[] = [
             `Leaving out market and operational RWA: ${num(cet1, 1)} / ${num(credit, 1)} = ${pct(cet1 / credit)}.`,
           ],
           excel: [`\`=${n(cet1, 1)}/(SUMPRODUCT({${book.map((b) => b.amount).join(",")}},{${book.map((b) => b.riskWeight).join(",")}})+${other})\``],
+        },
+      };
+    },
+  },
+  {
+    slug: "cre-loan-sizing",
+    title: "Commercial real estate loan sizing",
+    track: "Banking & Credit",
+    difficulty: "Medium",
+    concepts: ["Loan sizing", "LTV", "DSCR"],
+    generate(rng) {
+      const value = pick(rng, 5, 50, 0.5) * 1_000_000, cap = pick(rng, 0.05, 0.09, 0.0025), maxLtv = pick(rng, 0.55, 0.75, 0.05);
+      const minDscr = pick(rng, 1.2, 1.5, 0.05), rate = pick(rng, 0.05, 0.09, 0.0025), years = pick(rng, 20, 30, 5);
+      const noi = value * cap;
+      const sz = sizeLoan({ value, noi, maxLtv, minDscr, rate, years });
+      const ans = sz.maxLoan;
+      const ds = noi / minDscr, af = (1 - Math.pow(1 + rate, -years)) / rate;
+      const pay = ans / af, actualDscr = noi / pay;
+      return {
+        blocks: [
+          { kind: "p", text: `An office building is valued at **${money(value)}** and produces net operating income of **${money(noi)}** a year. A bank will lend up to **${pct(maxLtv, 0)} loan-to-value**, and requires a debt service coverage ratio of at least **${minDscr.toFixed(2)}x**. The loan carries **${pct(rate)}** interest and amortises fully over **${years} years** with level annual payments.` },
+        ],
+        question: "What is the largest loan the bank will make, in dollars?",
+        answer: ans, unit: "$", tolerance: { rel: 0.0005 },
+        solution: {
+          idea: [
+            "Lenders size property loans with two separate tests and lend the **smaller** of the two. The loan-to-value test protects them if they have to sell the building: the debt must sit well below its value. The DSCR test protects the payments: the building's income must cover the loan payments with a cushion.",
+            "The DSCR test caps the payment, not the loan, so you turn the maximum payment into a loan amount: the loan whose level payments over the term exactly equal that cap is the present value of those payments.",
+          ],
+          formulas: [
+            { expr: "Loan by LTV = Value × Max LTV", terms: [["Value", "Appraised property value"], ["Max LTV", "Lender's loan-to-value cap"]] },
+            { expr: "Max payment = NOI / Min DSCR", terms: [["NOI", "Net operating income, before debt service"], ["Min DSCR", "Required coverage of debt service"]] },
+            { expr: "Loan by DSCR = Max payment × (1 − (1 + r)^−n) / r", terms: [["r", "Loan interest rate"], ["n", "Amortisation term in years"], ["(1 − (1 + r)^−n) / r", "Annuity factor: PV of $1 a year for n years"]] },
+          ],
+          steps: [
+            table(["Test", "Calculation", "Maximum loan"], [
+              ["LTV", `${money(value)} × ${pct(maxLtv, 0)}`, money(sz.byLtv)],
+              ["DSCR", `${money(ds)} payment × ${af.toFixed(4)} annuity factor`, money(sz.byDscr)],
+            ]),
+            p(`Max payment = ${money(noi)} / ${minDscr.toFixed(2)} = ${money(ds)} a year. Annuity factor = (1 − ${n(1 + rate, 4)}^−${years}) / ${n(rate, 4)} = ${af.toFixed(4)}.`),
+            p(`The ${sz.binding} test is lower, so it binds: maximum loan = **${money(ans)}**.`),
+          ],
+          meaning: [
+            sz.binding === "DSCR"
+              ? `Income, not value, limits this loan: ${money(ans)} is only ${pct(ans / value, 1)} of value, below the ${pct(maxLtv, 0)} LTV cap. Higher rates shrink DSCR-based loans fast, which is why property buyers need more equity when rates rise.`
+              : `Value limits this loan: at ${money(ans)} the annual payment is ${money(pay)}, so DSCR is ${actualDscr.toFixed(2)}x, above the ${minDscr.toFixed(2)}x minimum. The income could support more debt than the LTV cap allows.`,
+            `The borrower funds the rest, ${money(value - ans)}, with equity (${pct(1 - ans / value, 1)} of value).`,
+          ],
+          mistakes: [
+            `Sizing the DSCR loan as interest-only (payment / rate): ${money(ds / rate)}. With amortisation each payment also repays principal, so the same payment supports a smaller loan.`,
+            `Taking the larger of the two tests: ${money(Math.max(sz.byLtv, sz.byDscr))}. The loan must pass both.`,
+            `Applying the DSCR to the loan instead of the payment (NOI / DSCR as the loan): ${money(ds)}.`,
+          ],
+          excel: [`\`=MIN(${value}*${n(maxLtv)},PV(${n(rate, 4)},${years},-${n(noi, 2)}/${n(minDscr)}))\``],
         },
       };
     },

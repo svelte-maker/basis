@@ -1,6 +1,6 @@
 // Portfolio and risk measures. Returns are periodic decimals.
 import { covariance, mean, quantile, stdev } from "./stats";
-import { normCdf } from "./options";
+import { normCdf, normPdf } from "./options";
 
 export function beta(assetReturns: number[], marketReturns: number[]): number {
   return covariance(assetReturns, marketReturns) / Math.pow(stdev(marketReturns), 2);
@@ -47,6 +47,16 @@ export function parametricVaR(value: number, annualVol: number, confidence: numb
   const z = invNorm(confidence);
   const t = days / 252;
   return value * (z * annualVol * Math.sqrt(t) - annualReturn * t);
+}
+
+/**
+ * Parametric (normal, zero mean) expected shortfall as a positive loss: the average loss on the
+ * days that are worse than VaR. ES = value × σ × φ(z) / (1 − confidence), z = Φ⁻¹(confidence).
+ * Pass `z` to use a rounded table value (e.g. 1.96) instead of the exact quantile.
+ * Basel's market-risk standard uses 97.5% ES (BCBS d352, "Minimum capital requirements for market risk", 2016).
+ */
+export function parametricES(value: number, periodVol: number, confidence: number, z = invNorm(confidence)): number {
+  return (value * periodVol * normPdf(z)) / (1 - confidence);
 }
 
 /** Historical VaR as a positive loss fraction at the given confidence. */
