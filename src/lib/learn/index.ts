@@ -3,7 +3,7 @@ import { depreciationInventory, ratioAnalysis, threeStatements, workingCapital }
 import { costOfCapital, dcfValuation, dividendDiscount, freeCashFlow, multiplesEv } from "./lessons/valuation";
 import { excelForFinance, modellingPrinciples } from "./lessons/modelling";
 import { ipoFpo } from "./lessons/capitalMarkets";
-import { leveragedBuyouts, mergers } from "./lessons/deals";
+import { fundWaterfall, leveragedBuyouts, mergers } from "./lessons/deals";
 import { bonds, creditAnalysis, optionsForwards, portfolioRisk } from "./lessons/markets";
 import type { Lesson, LessonBlock, Module, ModuleKey } from "./types";
 
@@ -29,7 +29,7 @@ export const LESSONS: Lesson[] = [
   costOfCapital, freeCashFlow, dcfValuation, multiplesEv, dividendDiscount,
   excelForFinance, modellingPrinciples,
   ipoFpo,
-  mergers, leveragedBuyouts,
+  mergers, leveragedBuyouts, fundWaterfall,
   bonds, optionsForwards, portfolioRisk, creditAnalysis,
 ];
 
