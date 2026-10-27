@@ -6,6 +6,7 @@ import { phaseOf } from "@/lib/contestScoring";
 import { LocalTime } from "@/components/LocalTime";
 import { GRADES } from "@/lib/rating/grades";
 import { canonical } from "@/lib/seo";
+import { MEMBER_SOLVES } from "@/lib/publicCounts";
 
 export const dynamic = "force-dynamic";
 export const metadata = canonical("/");
@@ -14,7 +15,7 @@ export default async function Home() {
   const user = await getCurrentUser();
   const [members, solves, next] = await Promise.all([
     db.user.count({ where: { role: "MEMBER" } }),
-    db.practiceState.count({ where: { everSolved: true } }),
+    db.practiceState.count({ where: MEMBER_SOLVES }),
     db.contest.findFirst({ where: { endsAt: { gt: new Date() } }, orderBy: { startsAt: "asc" } }),
   ]);
   return (
@@ -27,7 +28,7 @@ export default async function Home() {
           {user ? <Link className="btn" href="/problems" style={{ color: "var(--accent-ink)" }}>Go to problems</Link> : <Link className="btn" href="/signup" style={{ color: "var(--accent-ink)" }}>Start for free</Link>}
           <Link className="btn ghost" href="/signup?role=recruiter">I&apos;m hiring</Link>
         </div>
-        <div className="row small muted"><span className="num">{members}</span> members · <span className="num">{solves}</span> problems solved · <span className="num">{TEMPLATES.length}</span> problem types across {TRACKS.length} tracks</div>
+        <div className="row small muted"><span className="num">{members}</span> {members === 1 ? "member" : "members"} · <span className="num">{solves}</span> problems solved · <span className="num">{TEMPLATES.length}</span> problem types across {TRACKS.length} tracks</div>
       </section>
 
       {next && (

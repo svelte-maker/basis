@@ -3,6 +3,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { TEMPLATES, TRACKS, PRACTICE_POINTS } from "@/lib/problems";
 import { canonical } from "@/lib/seo";
+import { MEMBER_SOLVES } from "@/lib/publicCounts";
 
 export const metadata = { title: "Problems", ...canonical("/problems") };
 
@@ -11,7 +12,7 @@ export default async function ProblemsPage({ searchParams }: { searchParams: Pro
   const user = await getCurrentUser();
   const states = user ? await db.practiceState.findMany({ where: { userId: user.id } }) : [];
   const solved = new Set(states.filter((s) => s.everSolved).map((s) => s.slug));
-  const solveCounts = await db.practiceState.groupBy({ by: ["slug"], where: { everSolved: true }, _count: true });
+  const solveCounts = await db.practiceState.groupBy({ by: ["slug"], where: MEMBER_SOLVES, _count: true });
   const countBy = new Map(solveCounts.map((r) => [r.slug, r._count]));
 
   const list = TEMPLATES.filter((t) =>

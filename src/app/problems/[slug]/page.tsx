@@ -9,6 +9,7 @@ import { PracticePanel } from "./PracticePanel";
 import { LearnLink } from "@/components/LearnLink";
 import { lessonsForProblem } from "@/lib/learn";
 import { canonical } from "@/lib/seo";
+import { MEMBER_SOLVES, peopleDid } from "@/lib/publicCounts";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const t = getTemplate((await params).slug);
@@ -29,7 +30,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ slug: 
   const seed = user && state ? practiceSeed(user.id, slug, state.variant) : `guest:${slug}`;
   const inst = instantiate(slug, seed);
   const showSolution = !!state && (state.solved || state.revealed);
-  const solvers = await db.practiceState.count({ where: { slug, everSolved: true } });
+  const solvers = await db.practiceState.count({ where: { slug, ...MEMBER_SOLVES } });
   const idx = TEMPLATES.findIndex((x) => x.slug === slug);
   const nextT = TEMPLATES[(idx + 1) % TEMPLATES.length];
 
@@ -41,7 +42,7 @@ export default async function ProblemPage({ params }: { params: Promise<{ slug: 
           <span className="chip">{t.track}</span>
           <span className={`chip d-${t.difficulty}`}>{t.difficulty} · +{PRACTICE_POINTS[t.difficulty]} rating</span>
           {t.concepts.map((c) => <span key={c} className="chip">{c}</span>)}
-          <span className="small muted">{solvers} people solved this</span>
+          <span className="small muted">{peopleDid(solvers, "solved this")}</span>
         </div>
         <h1>{t.title}</h1>
         {state && state.variant > 0 && <p className="small muted">Variant {state.variant + 1}: fresh numbers for practice.</p>}
