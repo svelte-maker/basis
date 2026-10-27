@@ -4,6 +4,7 @@ import { db } from "@/lib/db";
 import { MODEL_POINTS, MODEL_TASKS } from "@/lib/models";
 import { SUPPORTED_FUNCTIONS } from "@/lib/sheets";
 import "./models.css";
+import { MEMBER_SOLVES } from "@/lib/publicCounts";
 
 export const metadata = { title: "Model tasks" };
 
@@ -12,7 +13,7 @@ export default async function ModelsPage() {
   const states = user ? await db.modelState.findMany({ where: { userId: user.id } }) : [];
   const solved = new Set(states.filter((s) => s.everSolved).map((s) => s.slug));
   const best = new Map(states.map((s) => [s.slug, s.bestScore]));
-  const counts = await db.modelState.groupBy({ by: ["slug"], where: { everSolved: true }, _count: true });
+  const counts = await db.modelState.groupBy({ by: ["slug"], where: MEMBER_SOLVES, _count: true });
   const countBy = new Map(counts.map((r) => [r.slug, r._count]));
 
   return (

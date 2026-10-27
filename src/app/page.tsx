@@ -28,7 +28,7 @@ export default async function Home() {
           {user ? <Link className="btn" href="/problems" style={{ color: "var(--accent-ink)" }}>Go to problems</Link> : <Link className="btn" href="/signup" style={{ color: "var(--accent-ink)" }}>Start for free</Link>}
           <Link className="btn ghost" href="/signup?role=recruiter">I&apos;m hiring</Link>
         </div>
-        <div className="row small muted"><span className="num">{members}</span> members · <span className="num">{solves}</span> problems solved · <span className="num">{TEMPLATES.length}</span> problem types across {TRACKS.length} tracks</div>
+        <div className="row small muted"><span className="num">{members}</span> {members === 1 ? "member" : "members"} · <span className="num">{solves}</span> problems solved · <span className="num">{TEMPLATES.length}</span> problem types across {TRACKS.length} tracks</div>
       </section>
 
       {next && (

@@ -10,6 +10,7 @@ import { TeamPanel } from "../../teams/TeamPanel";
 import { LearnLink } from "@/components/LearnLink";
 import { lessonsForModel } from "@/lib/learn";
 import "../models.css";
+import { MEMBER_SOLVES, peopleDid } from "@/lib/publicCounts";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
   const t = getModelTask((await params).slug);
@@ -25,7 +26,7 @@ export default async function ModelPage({ params }: { params: Promise<{ slug: st
   const inst = cur ? cur.inst : instantiateModel(slug, `guest:${slug}`);
   const state = cur?.state;
   const showAnswer = !!state && (state.solved || state.revealed);
-  const solvers = await db.modelState.count({ where: { slug, everSolved: true } });
+  const solvers = await db.modelState.count({ where: { slug, ...MEMBER_SOLVES } });
   const idx = MODEL_TASKS.findIndex((x) => x.slug === slug);
   const nextT = MODEL_TASKS[(idx + 1) % MODEL_TASKS.length];
 
@@ -38,7 +39,7 @@ export default async function ModelPage({ params }: { params: Promise<{ slug: st
           <span className={`chip d-${t.difficulty}`}>{t.difficulty} · +{MODEL_POINTS[t.difficulty]} rating</span>
           <span className="chip">About {t.minutes} min</span>
           {t.functions.map((f) => <span key={f} className="chip fn">{f}</span>)}
-          <span className="small muted">{solvers} people built this</span>
+          <span className="small muted">{peopleDid(solvers, "built this")}</span>
         </div>
         <h1>{t.title}</h1>
         {state && state.variant > 0 && <p className="small muted">Version {state.variant + 1}: fresh numbers for practice.</p>}
