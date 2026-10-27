@@ -6,6 +6,7 @@ import { phaseOf } from "@/lib/contestScoring";
 import { LocalTime } from "@/components/LocalTime";
 import { GRADES } from "@/lib/rating/grades";
 import { canonical } from "@/lib/seo";
+import { MEMBER_SOLVES } from "@/lib/publicCounts";
 
 export const dynamic = "force-dynamic";
 export const metadata = canonical("/");
@@ -14,7 +15,7 @@ export default async function Home() {
   const user = await getCurrentUser();
   const [members, solves, next] = await Promise.all([
     db.user.count({ where: { role: "MEMBER" } }),
-    db.practiceState.count({ where: { everSolved: true } }),
+    db.practiceState.count({ where: MEMBER_SOLVES }),
     db.contest.findFirst({ where: { endsAt: { gt: new Date() } }, orderBy: { startsAt: "asc" } }),
   ]);
   return (
