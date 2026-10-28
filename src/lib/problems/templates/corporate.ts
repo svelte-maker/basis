@@ -108,7 +108,7 @@ export const corporate: Template[] = [
               p("**Step 4: repeat** until NPV is within a cent of zero:"),
               irrTrialTable(trials),
             ]),
-            p(`**Step 5: check** by discounting every cash flow at ${pct(r, 4)}. The present values of the inflows add back to the ${money(c0)} cost:`),
+            p(`**Step ${r === 0 ? 2 : 5}: check** by discounting every cash flow at ${pct(r, 4)}. The present values of the inflows add back to the ${money(c0)} cost:`),
             discountTable(flows, r),
             p(`IRR = **${num(r * 100, 2)}%**.`),
           ],
@@ -122,8 +122,13 @@ export const corporate: Template[] = [
             "When choosing between mutually exclusive projects, rank by NPV, not IRR. A small project can have a high IRR but create less value than a large one, and IRR implicitly assumes cash is reinvested at the IRR itself.",
           ],
           mistakes: [
-            `Entering the decimal ${num(r, 4)} instead of the percentage ${num(r * 100, 2)}.`,
-            "Stopping after one interpolation. A straight line between two far-apart guesses is only an approximation because the NPV curve bends; keep iterating until NPV is essentially zero.",
+            // On a 0% seed the decimal and the percentage are the same number and nothing is interpolated
+            ...(r === 0
+              ? ["Reading 0% as break-even. The project only returns its cost in plain dollars; at any positive cost of capital its NPV is negative."]
+              : [
+                  `Entering the decimal ${num(r, 4)} instead of the percentage ${num(r * 100, 2)}.`,
+                  "Stopping after one interpolation. A straight line between two far-apart guesses is only an approximation because the NPV curve bends; keep iterating until NPV is essentially zero.",
+                ]),
             r < 0 ? "Assuming the answer must be positive and searching only above 0%. Check the sign of NPV at 0% first; it tells you which side the IRR is on." : "Confusing IRR with the average annual cash flow divided by the cost. That ignores timing entirely.",
           ],
           excel: [
