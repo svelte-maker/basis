@@ -69,7 +69,8 @@ export const corporate: Template[] = [
       const c0 = pick(rng, 1000, 3000, 100);
       const cfs = [1, 2, 3, 4].map(() => pick(rng, 250, 1100, 50));
       const flows = [-c0, ...cfs];
-      const r = irr(flows);
+      // Inflows that sum exactly to the cost give an IRR of exactly 0; clear the solver's −1e-15 noise.
+      const r = Math.abs(irr(flows)) < 1e-9 ? 0 : irr(flows);
       if (!isFinite(r)) return this.generate(rng);
       const sum = cfs.reduce((a, b) => a + b, 0);
       const trials = irrTrials(flows, r);
@@ -101,24 +102,33 @@ export const corporate: Template[] = [
           ],
           steps: [
             p(`**Step 1: try 0%.** At a zero rate nothing is discounted, so NPV is just the sum of the cash flows: −${num(c0)} + ${cfs.join(" + ")} = **${num(sum - c0)}**. ${sum - c0 === 0 ? "That is exactly zero, so the IRR is **0%**: the project pays back its cost and nothing more." : sum - c0 > 0 ? "That is positive, so the IRR is above 0%." : "That is negative: even before allowing for the time value of money the project does not pay back its cost. So the IRR must be **below 0%**."}`),
-            p(`**Step 2: try a second rate** on the other side: ${pr(trials[1].x)} gives NPV = ${num(trials[1].fx, 2)}.`),
-            p(`**Step 3: interpolate.** ${interpolationLine(trials[0], trials[1], pr)}`),
-            p("**Step 4: repeat** until NPV is within a cent of zero:"),
-            irrTrialTable(trials),
-            p(`**Step 5: check** by discounting every cash flow at ${pct(r, 4)}. The present values of the inflows add back to the ${money(c0)} cost:`),
+            ...(r === 0 ? [] : [
+              p(`**Step 2: try a second rate** on the other side: ${pr(trials[1].x)} gives NPV = ${num(trials[1].fx, 2)}.`),
+              p(`**Step 3: interpolate.** ${interpolationLine(trials[0], trials[1], pr)}`),
+              p("**Step 4: repeat** until NPV is within a cent of zero:"),
+              irrTrialTable(trials),
+            ]),
+            p(`**Step ${r === 0 ? 2 : 5}: check** by discounting every cash flow at ${pct(r, 4)}. The present values of the inflows add back to the ${money(c0)} cost:`),
             discountTable(flows, r),
-            p(`IRR = **${(r * 100).toFixed(2)}%**.`),
+            p(`IRR = **${num(r * 100, 2)}%**.`),
           ],
           meaning: [
-            r >= 0
+            r === 0
+              ? `An IRR of **0.00%** means the project returns exactly its ${money(c0)} cost and nothing more. In economic terms it destroys value: the money comes back later, so you give up the return it could have earned elsewhere. NPV is negative at every positive discount rate, so it fails any sensible hurdle.`
+              : r > 0
               ? `The project earns **${(r * 100).toFixed(2)}%** a year on the money tied up in it. Accept it if that beats the cost of capital (the hurdle rate) for a project of this risk; reject it if not. At any discount rate below ${pct(r)} its NPV is positive.`
               : `A **negative IRR** is not an error. It means the cash flows add up to less than the cost (${money(sum)} back for ${money(c0)} in), so the investment loses money in plain dollars, before any discounting. The project shrinks your capital by about ${pct(-r)} a year. Its NPV is negative at every positive discount rate, so it fails any sensible hurdle.`,
             "This project has one sign change (an outflow, then only inflows), so it has exactly one IRR. Projects whose cash flows switch sign more than once, for example with a big clean-up cost at the end, can have two IRRs or none; use NPV for those.",
             "When choosing between mutually exclusive projects, rank by NPV, not IRR. A small project can have a high IRR but create less value than a large one, and IRR implicitly assumes cash is reinvested at the IRR itself.",
           ],
           mistakes: [
-            `Entering the decimal ${r.toFixed(4)} instead of the percentage ${(r * 100).toFixed(2)}.`,
-            "Stopping after one interpolation. A straight line between two far-apart guesses is only an approximation because the NPV curve bends; keep iterating until NPV is essentially zero.",
+            // On a 0% seed the decimal and the percentage are the same number and nothing is interpolated
+            ...(r === 0
+              ? ["Reading 0% as break-even. The project only returns its cost in plain dollars; at any positive cost of capital its NPV is negative."]
+              : [
+                  `Entering the decimal ${num(r, 4)} instead of the percentage ${num(r * 100, 2)}.`,
+                  "Stopping after one interpolation. A straight line between two far-apart guesses is only an approximation because the NPV curve bends; keep iterating until NPV is essentially zero.",
+                ]),
             r < 0 ? "Assuming the answer must be positive and searching only above 0%. Check the sign of NPV at 0% first; it tells you which side the IRR is on." : "Confusing IRR with the average annual cash flow divided by the cost. That ignores timing entirely.",
           ],
           excel: [

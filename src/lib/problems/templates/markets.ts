@@ -77,7 +77,9 @@ export const fixedIncome: Template[] = [
     generate(rng) {
       const c = pick(rng, 0.02, 0.08, 0.005), yrs = pick(rng, 3, 10, 1), price = pick(rng, 880, 1120, 5);
       const b = { face: 1000, couponRate: c, years: yrs };
-      const y = bondYield(b, price);
+      const y0 = bondYield(b, price);
+      // A price equal to the undiscounted cash flows gives a yield of exactly 0; clear the −1e-12 solver noise.
+      const y = Math.abs(y0) < 1e-9 ? 0 : y0;
       const ans = y * 100;
       const cpn = 1000 * c;
       const approx = (cpn + (1000 - price) / yrs) / ((1000 + price) / 2);
@@ -103,15 +105,17 @@ export const fixedIncome: Template[] = [
           steps: [
             p(`**1. Which side of the coupon?** The bond trades ${price < 1000 ? `below par, so its yield is **above** the ${pct(c)} coupon` : price > 1000 ? `above par, so its yield is **below** the ${pct(c)} coupon` : `at par, so its yield equals the ${pct(c)} coupon`}.`),
             p(`**2. First guess from the approximation:** [${num(cpn, 2)} + (1,000 − ${num(price, 2)}) / ${yrs}] / [(1,000 + ${num(price, 2)}) / 2] = ${pct(approx, 4)}.`),
-            p(`**3. Trial and error.** Price the bond at each guess and compare with ${money(price, 2)}.${Math.abs(trials[1].fx - trials[0].fx) > 1e-9 ? ` ${interpolationLine(trials[0], trials[1], pr, 4)}` : ""}`),
+            p(`**3. Trial and error.** Price the bond at each guess and compare with ${money(price, 2)}.${Math.abs(trials[1].fx) < 0.005 ? " The approximation already matches the price, so there is nothing to interpolate." : Math.abs(trials[1].fx - trials[0].fx) > 1e-9 ? ` ${interpolationLine(trials[0], trials[1], pr, 4)}` : ""}`),
             table(["Trial", "Yield", "Price at this yield", "Minus market price", "What it tells you"], trials.map((t, i) => [
               String(i + 1), pr(t.x), money(t.fx + price, 4), num(t.fx, 4),
               Math.abs(t.fx) < 0.005 ? "Matches: this is the YTM" : t.fx > 0 ? "Price too high: yield too low" : "Price too low: yield too high",
             ])),
-            p(`YTM = **${ans.toFixed(3)}%**.`),
+            p(`YTM = **${num(ans, 3)}%**.`),
           ],
           meaning: [
-            `A buyer at ${money(price, 2)} earns **${ans.toFixed(2)}%** a year if they hold to maturity. ${price < 1000 ? "That is more than the coupon because they also gain the discount as the price rises to par." : price > 1000 ? "That is less than the coupon because they lose the premium as the price falls to par." : ""}`,
+            y === 0
+              ? `A buyer at ${money(price, 2)} pays exactly the sum of every coupon and the face value (${num(cpn, 2)} × ${yrs} + 1,000), so the yield is **0.00%**: they get their money back and nothing for the wait. The premium over par eats the whole coupon income.`
+              : `A buyer at ${money(price, 2)} earns **${num(ans, 2)}%** a year if they hold to maturity. ${price < 1000 ? "That is more than the coupon because they also gain the discount as the price rises to par." : price > 1000 ? "That is less than the coupon because they lose the premium as the price falls to par." : ""}${y < 0 ? " A negative yield means the buyer gets back less than they pay." : ""}`,
             "YTM assumes every coupon is reinvested at the YTM itself and the issuer does not default. If reinvestment rates differ, the realised return will too.",
           ],
           mistakes: [
@@ -247,7 +251,7 @@ export const fixedIncome: Template[] = [
         answer: ans, unit: "%", tolerance: { abs: 0.01 },
         solution: {
           idea: [
-            `An investor with a ${t2}-year horizon has two choices: lock in the ${t2}-year rate today, or invest for 1 year and then reinvest for the remaining ${m} years. If both routes are available, their returns must match, or everyone would pick the better one.`,
+            `An investor with a ${t2}-year horizon has two choices: lock in the ${t2}-year rate today, or invest for 1 year and then reinvest for the remaining ${m} year${m === 1 ? "" : "s"}. If both routes are available, their returns must match, or everyone would pick the better one.`,
             "The forward rate is the future rate that makes the two routes equal. It is the rate the market is locking in today for borrowing or lending later.",
           ],
           formulas: [
@@ -261,12 +265,12 @@ export const fixedIncome: Template[] = [
           steps: [
             p(`Long route: $1 grows to (1 + ${pct(s2)})^${t2} = ${g2.toFixed(6)}.`),
             p(`First leg of the short route: $1 grows to ${g1.toFixed(6)} after one year.`),
-            p(`The remaining ${m} years must grow ${g1.toFixed(6)} into ${g2.toFixed(6)}: a factor of ${(g2 / g1).toFixed(6)}.`),
-            p(m > 1 ? `Annualise: f = ${(g2 / g1).toFixed(6)}^(1/${m}) − 1 = **${ans.toFixed(3)}%** a year.` : `So f = ${(g2 / g1).toFixed(6)} − 1 = **${ans.toFixed(3)}%**.`),
+            p(`The remaining ${m} year${m === 1 ? "" : "s"} must grow ${g1.toFixed(6)} into ${g2.toFixed(6)}: a factor of ${(g2 / g1).toFixed(6)}.`),
+            p(m > 1 ? `Annualise: f = ${(g2 / g1).toFixed(6)}^(1/${m}) − 1 = **${num(ans, 3)}%** a year.` : `So f = ${(g2 / g1).toFixed(6)} − 1 = **${num(ans, 3)}%**.`),
           ],
           meaning: [
-            s2 > s1 ? `The curve slopes upward, so the forward rate (${ans.toFixed(2)}%) is above both spot rates. Under the expectations theory, the market expects rates to rise.`
-              : s2 < s1 ? `The curve slopes downward, so the forward rate (${ans.toFixed(2)}%) is below both spot rates. Under the expectations theory, the market expects rates to fall.`
+            s2 > s1 ? `The curve slopes upward, so the forward rate (${num(ans, 2)}%) is above both spot rates. Under the expectations theory, the market expects rates to rise.`
+              : s2 < s1 ? `The curve slopes downward, so the forward rate (${num(ans, 2)}%) is below both spot rates. Under the expectations theory, the market expects rates to fall.`
                 : "The curve is flat, so the forward rate equals the spot rate.",
             "Forward rates also contain a term premium, so they tend to overstate the rates that actually materialise.",
           ],
@@ -769,15 +773,17 @@ export const privateEquity: Template[] = [
             p(`**Trial 2:** at ${pr(trials[1].x)}, NPV = ${num(trials[1].fx, 2)}.`),
             p(`**Interpolate.** ${interpolationLine(trials[0], trials[1], pr)} Repeat until NPV is essentially zero:`),
             irrTrialTable(trials),
-            p(`IRR = **${pct(r)}**. MOIC = (${num(recap, 1)} + ${num(exit, 1)}) / ${num(eq0)} = ${moic.toFixed(2)}x.`),
+            p(`IRR = **${num(ans, 2)}%**. MOIC = (${num(recap, 1)} + ${num(exit, 1)}) / ${num(eq0)} = ${moic.toFixed(2)}x.`),
             p(`Cross-check: the same ${moic.toFixed(2)}x received all at exit would give ${moic.toFixed(2)}^(1/5) − 1 = ${pct(noRecap)}. ${r >= noRecap ? `The recap's early timing adds ${num(ans - noRecap * 100, 2)} percentage points of IRR.` : `Here the early timing costs ${num(noRecap * 100 - ans, 2)} percentage points, because the deal loses money (see below).`}`),
           ],
           meaning: [
             ans >= 0
-              ? `The sponsor earns **${pct(r)}** a year on ${moic.toFixed(2)}x its money. ${ans >= 20 ? "That clears the 20 to 25% most buyout funds target." : "That is below the 20 to 25% most buyout funds target."}`
-              : `The IRR is negative (**${pct(r)}**): the sponsor gets back only ${moic.toFixed(2)}x what it invested. With a loss, the usual timing logic flips: at a negative rate, later cash is discounted **up**, so getting part of the money back early makes the IRR slightly worse, not better. The recap still reduced the sponsor's risk by banking cash before the exit.`,
+              ? `The sponsor earns **${num(ans, 2)}%** a year on ${moic.toFixed(2)}x its money. ${ans >= 20 ? "That clears the 20 to 25% most buyout funds target." : "That is below the 20 to 25% most buyout funds target."}`
+              : `The IRR is negative (**${num(ans, 2)}%**): the sponsor gets back only ${moic.toFixed(2)}x what it invested. With a loss, the usual timing logic flips: at a negative rate, later cash is discounted **up**, so getting part of the money back early makes the IRR slightly worse, not better. The recap still reduced the sponsor's risk by banking cash before the exit.`,
             exit < eq0 ? `The exit alone (${money(exit, 1)}m) is less than the original equity. Without the recap this deal ${moic >= 1 ? "would look like a loss; with it the sponsor has its money back plus some" : "loses even more"}. That is why recaps are sometimes called "taking chips off the table".` : `The recap took ${pct(recap / eq0, 0)} of the original equity off the table in year ${k}, de-risking the deal before the exit.`,
-            "The extra debt that funds a recap raises the company's leverage and interest bill. Lenders and boards weigh that risk against the sponsor's higher IRR.",
+            r >= noRecap
+              ? "The extra debt that funds a recap raises the company's leverage and interest bill. Lenders and boards weigh that risk against the sponsor's higher IRR."
+              : "The extra debt that funds a recap raises the company's leverage and interest bill. Here it did not even raise the IRR, so the case for it rests on de-risking alone.",
           ],
           mistakes: [
             `Treating the dividend as if it arrived at exit: (${num(recap + exit, 1)} / ${num(eq0)})^(1/5) − 1 = ${pct(noRecap)}. Right MOIC, wrong IRR, because timing matters.`,
@@ -865,10 +871,11 @@ export const privateEquity: Template[] = [
             "Real funds call capital and distribute over many years, so the hurdle is tested on dated cash flows (an IRR test), not one multiple. Many US funds use a deal-by-deal (American) waterfall instead, which pays carry earlier and usually comes with a clawback.",
           ],
           mistakes: [
-            `Leaving out the catch-up (20% of profit above the hurdle): ${money(noCatchUp, 2)}m.`,
+            // A distractor that equals the answer on this seed is not a mistake, so it is left out
+            ...(Math.abs(noCatchUp - ans) > 0.02 ? [`Leaving out the catch-up (20% of profit above the hurdle): ${money(noCatchUp, 2)}m.`] : []),
             Math.abs(withSimple - ans) > 0.02
               ? `Simple instead of compound hurdle (8% × ${yrs} = ${pct(hurdle * yrs, 0)} rather than ${pct(hurdleMult - 1, 2)}): ${money(withSimple, 2)}m.`
-              : `Simple instead of compound hurdle (8% × ${yrs} = ${pct(hurdle * yrs, 0)} rather than ${pct(hurdleMult - 1, 2)}). It happens not to change the answer here because the catch-up completes either way, but it moves the hurdle and gives the wrong carry for funds near it.`,
+              : `Simple instead of compound hurdle (8% × ${yrs} = ${pct(hurdle * yrs, 0)} rather than ${pct(hurdleMult - 1, 2)}). It happens not to change the answer here ${zone === "below" ? `because the fund misses the simple hurdle (${money(c + simplePref, 1)}m) too` : "because the catch-up completes either way"}, but it moves the hurdle and gives the wrong carry for funds near it.`,
             zone === "full"
               ? `Taking 20% of total profit straight away gives ${money(0.2 * profit, 2)}m, the right answer here only because the catch-up completed. In the catch-up zone or below the hurdle it overstates carry.`
               : `Taking 20% of total profit and ignoring the hurdle: ${money(0.2 * profit, 2)}m. That overstates carry whenever the catch-up has not completed.`,
