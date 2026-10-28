@@ -11,6 +11,7 @@ describe("every template", () => {
         expect(isCorrect(inst.answer, inst)).toBe(true);
         const text = JSON.stringify(inst);
         expect(text, `no NaN/undefined in text (seed ${k})`).not.toMatch(/NaN|undefined|Infinity/);
+        expect(text, `no negative zero percentages (seed ${k})`).not.toMatch(/[−-]0\.0+%/);
         // A 2% error must never be accepted (guards against tolerances that are too loose)
         if (Math.abs(inst.answer) * 0.02 > (inst.tolerance.abs ?? 0) * 1.01) expect(isCorrect(inst.answer * 1.02, inst), `${t.slug} seed ${k} too lenient`).toBe(false);
       }
@@ -36,6 +37,9 @@ describe("every template", () => {
       }
     });
   }
+  it("implied share prices are never negative (limited liability)", () => {
+    for (let k = 0; k < 5000; k++) expect(instantiate("implied-price-from-multiple", `sweep1026:${k}`).answer, `seed ${k}`).toBeGreaterThan(0);
+  });
   it("same seed gives same numbers, different users differ", () => {
     const a = instantiate("project-npv", practiceSeed("u1", "project-npv", 0));
     const b = instantiate("project-npv", practiceSeed("u1", "project-npv", 0));

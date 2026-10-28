@@ -312,7 +312,9 @@ export const valuation: Template[] = [
       const comps = [0, 1, 2, 3, 4].map(() => pick(rng, 6, 16, 0.1));
       const sorted = [...comps].sort((a, b) => a - b);
       const med = sorted[2];
-      const ebitda = pick(rng, 50, 500, 5), nd = pick(rng, -100, 800, 10), sh = pick(rng, 20, 200, 5);
+      const ebitda = pick(rng, 50, 500, 5), ndDraw = pick(rng, -100, 800, 10), sh = pick(rng, 20, 200, 5);
+      // Limited liability: a seed whose net debt would wipe out the equity uses 60% of EV instead (same draws).
+      const nd = ndDraw < med * ebitda ? ndDraw : Math.floor((med * ebitda * 0.6) / 10) * 10;
       const ans = (med * ebitda - nd) / sh;
       const mean = comps.reduce((a, b) => a + b, 0) / 5;
       return {
