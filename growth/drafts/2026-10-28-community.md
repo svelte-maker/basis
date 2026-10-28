@@ -15,7 +15,7 @@ The live site couldn't be reached from this run: the agent's network blocked `ba
 1. **Create Basis #2: Alpha Hunt at `/admin`** for Sun 1 Nov, 17:00 IST (11:30 UTC), 60 min, problems `sharpe-ratio`, `irr-from-moic`, `terminal-value-gordon`, `black-scholes-call`. Until it exists, don't post the announcement below.
 2. **Get the first people in before Sunday.** A contest with nobody registered teaches us nothing. The launch kits in `growth/community/` are ready. Even 10 friends, classmates or CFA study partners registering would give a real first leaderboard.
 3. **Decide what to do with the Founding Round badge.** Nobody earned it. One option is to rename Alpha Hunt "Basis #2: The Founding Round" and run the badge again. My recommendation is to keep the badge for the first contest that has at least one finisher. That's a product change (`src/lib/badges.ts` matches on the contest title), so it's your call.
-4. **Merge #31 if you want the calendar to stay four weeks ahead.** Its Founding Round posts are out of date now, but it adds Basis #5: Capital Stack (22 Nov). Two of that round's problems (`dividend-recap-irr`, `fund-waterfall-carry`) have edge-seed issues filed in #35 with a fix in #38, so merge #38 before 22 Nov or I'll swap them out.
+4. **Merge #31 if you want the calendar to stay four weeks ahead.** Its Founding Round posts are out of date now, but it adds Basis #5: Capital Stack (22 Nov). Merge #38 (the #35 edge-seed fixes) **before Sun 15 Nov**. It fixes `implied-price-from-multiple` and `yield-to-maturity`, which are in Basis #4: Price Discovery, and `dividend-recap-irr` and `fund-waterfall-carry`, which are in Basis #5. If it isn't merged by then, I'll swap those problems out.
 
 ---
 
