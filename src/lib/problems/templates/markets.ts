@@ -1,10 +1,10 @@
 import type { Template } from "../types";
 import { pick } from "../rng";
 import { money, num, pct } from "../format";
-import { bondPrice, bondYield, currentYield, forwardRate, macaulayDuration } from "@/lib/finance/fixedIncome";
+import { bondPrice, bondYield, currentYield, forwardRate, fraSettlement, macaulayDuration } from "@/lib/finance/fixedIncome";
 import { blackScholes, normCdf, putFromParity } from "@/lib/finance/options";
 import { irr } from "@/lib/finance/tvm";
-import { europeanWaterfall } from "@/lib/finance/funds";
+import { europeanWaterfall, fundMultiples } from "@/lib/finance/funds";
 import { capitalRatio, creditRwa } from "@/lib/finance/banking";
 import { twoAsset } from "@/lib/finance/portfolio";
 import { interpolationLine, irrTrialTable, irrTrials, n, p, secantTrials, table } from "../explain";
@@ -312,6 +312,59 @@ export const fixedIncome: Template[] = [
             "Treating current yield as the total return. It leaves out the pull to par.",
           ],
           excel: [`\`=1000*${n(c)}/${price}\``],
+        },
+      };
+    },
+  },
+  {
+    slug: "fra-settlement",
+    title: "FRA settlement payment",
+    track: "Fixed Income",
+    difficulty: "Medium",
+    concepts: ["Forward rate agreements", "Hedging", "Money market"],
+    generate(rng) {
+      const nm = pick(rng, 10, 100, 5), k = pick(rng, 0.02, 0.06, 0.0005), gap = pick(rng, 0.0005, 0.0075, 0.0005), up = pick(rng, 0, 1, 1), start = pick(rng, 1, 6, 1), days = pick(rng, 90, 180, 90);
+      const l = Number((up ? k + gap : k - gap).toFixed(6)), tau = days / 360, len = days === 90 ? 3 : 6, name = `${start}×${start + len}`;
+      const N = nm * 1e6, diff = N * (l - k) * tau, ans = fraSettlement(N, k, l, days);
+      const recv = ans > 0;
+      return {
+        blocks: [
+          { kind: "p", text: `A company buys a **${name}** forward rate agreement on a notional of **${money(nm)}m** at a contract rate of **${pct(k)}**. The FRA covers a **${days}-day** period starting in ${start} month${start > 1 ? "s" : ""}, uses an actual/360 day count, and settles in cash at the start of that period.` },
+          { kind: "p", text: `On the fixing date the reference rate for the period is **${pct(l)}**.` },
+        ],
+        question: "What is the settlement amount to the buyer, in $? Positive if the buyer receives, negative if it pays.",
+        answer: ans, unit: "$", tolerance: { abs: 2 },
+        solution: {
+          idea: [
+            "An FRA locks in a borrowing or lending rate for a future period. The buyer is the would-be borrower: it pays the fixed contract rate and receives the floating reference rate on a notional that never changes hands.",
+            "Only the interest difference is paid. It relates to interest that would be due at the end of the period, but the FRA settles at the start, so the difference is discounted back for one period at the reference rate.",
+          ],
+          formulas: [
+            { expr: "Settlement = N × (L − K) × τ / (1 + L × τ)", terms: [
+              ["N", "Notional principal"],
+              ["L", "Reference rate fixed for the period"],
+              ["K", "FRA contract rate"],
+              ["τ", "Days in the period / 360"],
+            ] },
+          ],
+          steps: [
+            p(`Year fraction: τ = ${days} / 360 = ${tau}.`),
+            p(`Interest difference due at the end of the period: ${money(nm)}m × (${pct(l)} − ${pct(k)}) × ${tau} = ${money(diff, 2)}.`),
+            p(`Discount factor for the period: 1 + ${n(l)} × ${tau} = ${(1 + l * tau).toFixed(6)}.`),
+            p(`Settlement at the start of the period = ${money(diff, 2)} / ${(1 + l * tau).toFixed(6)} = **${money(ans, 2)}**.`),
+          ],
+          meaning: [
+            recv
+              ? `The reference rate came in above the contract rate, so the buyer receives ${money(ans, 2)}. A company borrowing ${money(nm)}m at ${pct(l)} for the period pays more interest, and the FRA payment (worth ${money(diff, 2)} by the end of the period) offsets that, so its net cost stays at ${pct(k)}.`
+              : `The reference rate came in below the contract rate, so the buyer pays ${money(-ans, 2)}. A company borrowing ${money(nm)}m at ${pct(l)} for the period saves on interest, but gives that saving up through the FRA, so its net cost stays at ${pct(k)}.`,
+            `"${name}" names the period: it starts in month ${start} and ends in month ${start + len}. The start date only matters for when the rate is fixed; the payment depends on the ${days}-day period itself.`,
+          ],
+          mistakes: [
+            `Forgetting to discount: ${money(diff, 2)} is what the difference is worth at the end of the period, not at settlement.`,
+            `Discounting at the contract rate instead of the reference rate: ${money(diff / (1 + k * tau), 2)}.`,
+            `Using a 365-day year: ${money(fraSettlement(N, k, l, days, 365), 2)}. USD money-market rates quote on actual/360.`,
+          ],
+          excel: [`\`=${N}*(${n(l)}-${n(k)})*(${days}/360)/(1+${n(l)}*${days}/360)\``],
         },
       };
     },
@@ -878,6 +931,50 @@ export const privateEquity: Template[] = [
             `Preferred return: \`=${c}*(1.08^${yrs}-1)\` → ${num(prefFull, 4)}.`,
             `Carry in one formula: \`=MIN(MAX(${n(d, 2)}-${c}-${c}*(1.08^${yrs}-1),0),${c}*(1.08^${yrs}-1)/4)+0.2*MAX(${n(d, 2)}-${c}-${c}*(1.08^${yrs}-1)*1.25,0)\`. The \`MAX(…,0)\` stops a tier going negative when the fund falls short of it, and \`*1.25\` is pref plus a full catch-up.`,
           ],
+        },
+      };
+    },
+  },
+  {
+    slug: "fund-multiples-tvpi",
+    title: "Fund multiples: DPI, RVPI and TVPI",
+    track: "Private Equity",
+    difficulty: "Easy",
+    concepts: ["Fund performance", "TVPI", "DPI"],
+    generate(rng) {
+      const commit = pick(rng, 100, 500, 25), called = pick(rng, 0.6, 0.95, 0.05), dm = pick(rng, 0, 1.6, 0.05), vm = pick(rng, 0.3, 1.4, 0.05);
+      const paidIn = commit * called, dist = Math.round(paidIn * dm * 10) / 10, nav = Math.round(paidIn * vm * 10) / 10;
+      const { dpi, rvpi, tvpi } = fundMultiples(paidIn, dist, nav);
+      return {
+        blocks: [{ kind: "p", text: `A buyout fund has **${money(commit)}m** of commitments, of which LPs have paid in **${money(paidIn, 2)}m** so far. It has distributed **${money(dist, 1)}m** back to LPs, and its remaining portfolio is held at a net asset value of **${money(nav, 1)}m**.` }],
+        question: "What is the fund's TVPI? Multiple to two decimals.",
+        answer: tvpi, unit: "x", tolerance: { abs: 0.005 },
+        solution: {
+          idea: [
+            "LPs judge a fund by what it has done with the money it actually called, so every multiple divides by paid-in capital, not commitments. TVPI adds what has come back in cash (DPI) to what is still held at the fund's own valuation (RVPI).",
+          ],
+          formulas: [
+            { expr: "DPI = Distributions / Paid-in, RVPI = NAV / Paid-in", terms: [["Distributions", "Cash returned to LPs so far"], ["NAV", "Net asset value of the unsold portfolio"], ["Paid-in", "Capital called from LPs to date"]] },
+            { expr: "TVPI = DPI + RVPI = (Distributions + NAV) / Paid-in", terms: [] },
+          ],
+          steps: [
+            p(`DPI = ${money(dist, 1)}m / ${money(paidIn, 2)}m = ${num(dpi, 3)}x.`),
+            p(`RVPI = ${money(nav, 1)}m / ${money(paidIn, 2)}m = ${num(rvpi, 3)}x.`),
+            p(`TVPI = ${num(dpi, 3)} + ${num(rvpi, 3)} = **${num(tvpi, 2)}x**.`),
+          ],
+          meaning: [
+            dist === 0
+              ? `Nothing has been distributed yet, so the whole ${num(tvpi, 2)}x rests on the fund's own marks. LPs often say "DPI is what you can spend".`
+              : `${pct(dpi / tvpi, 0)} of the value is realised cash; the other ${pct(rvpi / tvpi, 0)} is still a valuation that could move before it is sold.`,
+            tvpi < 1
+              ? "TVPI below 1.0x means the fund is worth less than LPs paid in. Early in a fund's life that is normal, because fees are charged before investments mature (the J-curve)."
+              : "TVPI says nothing about timing. Two funds with the same TVPI can have very different IRRs, so LPs read it next to IRR and DPI.",
+          ],
+          mistakes: [
+            `Dividing by commitments instead of paid-in capital: (${money(dist, 1)}m + ${money(nav, 1)}m) / ${money(commit)}m = ${num((dist + nav) / commit, 2)}x.`,
+            `Quoting DPI (${num(dpi, 2)}x) as the fund's multiple, which leaves out the unsold portfolio.`,
+          ],
+          excel: [`\`=(${dist}+${nav})/${n(paidIn, 2)}\``],
         },
       };
     },

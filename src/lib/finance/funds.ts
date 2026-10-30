@@ -45,3 +45,23 @@ export function europeanWaterfall(i: WaterfallInput): WaterfallResult {
   const gp = catchUp + i.carry * residual;
   return { returnOfCapital, preferred, catchUp, residual, lp: i.proceeds - gp, gp };
 }
+
+export type FundMultiples = {
+  /** Distributions to paid-in: the realised part of the return. */
+  dpi: number;
+  /** Residual value to paid-in: the unrealised part, at the fund's own NAV marks. */
+  rvpi: number;
+  /** Total value to paid-in = DPI + RVPI. */
+  tvpi: number;
+};
+
+/**
+ * Fund-level multiples on paid-in (called) capital, not commitments. Definitions follow the ILPA
+ * reporting guidance and the CFA Institute curriculum (Private Equity Investments): DPI = cumulative
+ * distributions / paid-in, RVPI = NAV / paid-in, TVPI = DPI + RVPI.
+ */
+export function fundMultiples(paidIn: number, distributions: number, nav: number): FundMultiples {
+  if (paidIn <= 0 || distributions < 0 || nav < 0) throw new RangeError("Invalid fund multiples input");
+  const dpi = distributions / paidIn, rvpi = nav / paidIn;
+  return { dpi, rvpi, tvpi: dpi + rvpi };
+}
