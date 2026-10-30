@@ -326,14 +326,14 @@ export const fixedIncome: Template[] = [
       const nm = pick(rng, 10, 100, 5), k = pick(rng, 0.02, 0.06, 0.0005), gap = pick(rng, 0.0005, 0.0075, 0.0005), up = pick(rng, 0, 1, 1), start = pick(rng, 1, 6, 1), days = pick(rng, 90, 180, 90);
       const l = Number((up ? k + gap : k - gap).toFixed(6)), tau = days / 360, len = days === 90 ? 3 : 6, name = `${start}×${start + len}`;
       const N = nm * 1e6, diff = N * (l - k) * tau, ans = fraSettlement(N, k, l, days);
-      const recv = ans > 0;
+      const recv = ans > 0, atK = diff / (1 + k * tau), tol = 0.5;
       return {
         blocks: [
           { kind: "p", text: `A company buys a **${name}** forward rate agreement on a notional of **${money(nm)}m** at a contract rate of **${pct(k)}**. The FRA covers a **${days}-day** period starting in ${start} month${start > 1 ? "s" : ""}, uses an actual/360 day count, and settles in cash at the start of that period.` },
           { kind: "p", text: `On the fixing date the reference rate for the period is **${pct(l)}**.` },
         ],
         question: "What is the settlement amount to the buyer, in $? Positive if the buyer receives, negative if it pays.",
-        answer: ans, unit: "$", tolerance: { abs: 2 },
+        answer: ans, unit: "$", tolerance: { abs: tol },
         solution: {
           idea: [
             "An FRA locks in a borrowing or lending rate for a future period. The buyer is the would-be borrower: it pays the fixed contract rate and receives the floating reference rate on a notional that never changes hands.",
@@ -361,7 +361,8 @@ export const fixedIncome: Template[] = [
           ],
           mistakes: [
             `Forgetting to discount: ${money(diff, 2)} is what the difference is worth at the end of the period, not at settlement.`,
-            `Discounting at the contract rate instead of the reference rate: ${money(diff / (1 + k * tau), 2)}.`,
+            // On small notionals and gaps this lands within the tolerance, so it is not shown as a mistake there
+            ...(Math.abs(atK - ans) > tol ? [`Discounting at the contract rate instead of the reference rate: ${money(atK, 2)}.`] : []),
             `Using a 365-day year: ${money(fraSettlement(N, k, l, days, 365), 2)}. USD money-market rates quote on actual/360.`,
           ],
           excel: [`\`=${N}*(${n(l)}-${n(k)})*(${days}/360)/(1+${n(l)}*${days}/360)\``],
