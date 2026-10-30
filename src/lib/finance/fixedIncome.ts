@@ -71,3 +71,14 @@ export function bootstrapZeros(parYields: number[]): number[] {
   });
   return zeros;
 }
+
+/**
+ * Cash settlement of a forward rate agreement, to the party receiving floating (the buyer), paid at
+ * the start of the contract period. The interest difference N × (L − K) × τ would be due at the end of
+ * the period, so it is discounted back at the reference rate: N(L − K)τ / (1 + Lτ).
+ * Hull, Options, Futures, and Other Derivatives, ch. 4 (forward rate agreements); τ = days / 360.
+ */
+export function fraSettlement(notional: number, contractRate: number, referenceRate: number, days: number, basis = 360): number {
+  const tau = days / basis;
+  return (notional * (referenceRate - contractRate) * tau) / (1 + referenceRate * tau);
+}

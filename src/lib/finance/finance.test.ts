@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { amortizationSchedule, irr, mirr, npv, paybackPeriod, pmt, xirr, effectiveAnnualRate, annuityPV } from "./tvm";
 import { capm, gordonGrowth, releverBeta, unleverBeta, wacc, twoStageDDM, enterpriseValue, treasuryStockMethod, accretionDilution } from "./corporate";
-import { bondPrice, bondYield, bootstrapZeros, convexity, macaulayDuration, modifiedDuration, forwardRate } from "./fixedIncome";
+import { bondPrice, bondYield, bootstrapZeros, convexity, macaulayDuration, modifiedDuration, forwardRate, fraSettlement } from "./fixedIncome";
 import { binomial, blackScholes, impliedVol, putFromParity } from "./options";
 import { runDcf, dcfSensitivity, type DcfInput } from "./dcf";
 import { runLbo } from "./lbo";
@@ -9,7 +9,7 @@ import { computeRatios, dupont } from "./ratios";
 import { minVarianceWeight, twoAsset, maxDrawdown, parametricVaR } from "./portfolio";
 import { summarize, impliedPerShare } from "./comps";
 import { median, quantile } from "./stats";
-import { europeanWaterfall } from "./funds";
+import { europeanWaterfall, fundMultiples } from "./funds";
 import { capitalRatio, creditRwa } from "./banking";
 
 describe("time value of money", () => {
@@ -74,6 +74,13 @@ describe("fixed income", () => {
   });
   it("flat par curve bootstraps to flat zeros", () => bootstrapZeros([0.05, 0.05, 0.05]).forEach((z) => expect(z).toBeCloseTo(0.05, 10)));
   it("forward rate", () => expect(forwardRate(0.03, 1, 0.04, 2)).toBeCloseTo(0.0501, 4));
+  // Worked by hand: $10m, K 4%, L 5%, 90 days. Interest difference = 10m × 0.01 × 0.25 = 25,000,
+  // discounted at 1 + 0.05 × 0.25 = 1.0125 → 24,691.36.
+  it("FRA settles the discounted interest difference", () => {
+    expect(fraSettlement(10_000_000, 0.04, 0.05, 90)).toBeCloseTo(24691.358, 2);
+    expect(fraSettlement(10_000_000, 0.05, 0.04, 90)).toBeCloseTo(-24752.475, 2);
+    expect(fraSettlement(10_000_000, 0.04, 0.04, 180)).toBe(0);
+  });
 });
 
 describe("options", () => {
@@ -198,6 +205,13 @@ describe("fund waterfall", () => {
     const w = europeanWaterfall({ ...base, proceeds: 130 });
     expect(w.preferred).toBeCloseTo(30, 8);
     expect(w.gp).toBe(0);
+  });
+  // Paid-in 80, distributions 60, NAV 70: DPI 0.75, RVPI 0.875, TVPI 1.625.
+  it("fund multiples are measured on paid-in capital", () => {
+    const m = fundMultiples(80, 60, 70);
+    expect(m.dpi).toBeCloseTo(0.75, 12);
+    expect(m.rvpi).toBeCloseTo(0.875, 12);
+    expect(m.tvpi).toBeCloseTo(1.625, 12);
   });
 });
 

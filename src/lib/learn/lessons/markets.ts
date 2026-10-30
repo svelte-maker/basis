@@ -121,7 +121,7 @@ export const bonds: Lesson = {
     { q: "1-year spot 5%, 2-year spot 6%. The implied 1-year forward rate one year out is about:", options: ["5.5%", "6.0%", "7.0%", "11%"], answer: 2, why: "1.06² ÷ 1.05 − 1 = 7.01%." },
   ],
   apply: {
-    problems: ["bond-price", "yield-to-maturity", "current-yield", "macaulay-duration", "duration-convexity-estimate", "implied-forward-rate"],
+    problems: ["bond-price", "yield-to-maturity", "current-yield", "macaulay-duration", "duration-convexity-estimate", "implied-forward-rate", "fra-settlement"],
     models: [],
     cases: [],
     tools: ["bond"],
