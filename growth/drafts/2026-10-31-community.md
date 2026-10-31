@@ -12,7 +12,9 @@ The live site couldn't be reached from this run, for the third run in a row: the
 - Nothing has merged to `main` since Fri 23 Oct. It still has 50 problems.
 
 **For Svelte, in order:**
-1. **Alpha Hunt is tomorrow.** If you want it to run, create it at `/admin` today: Sun 1 Nov, 17:00 IST (11:30 UTC), 60 min, `sharpe-ratio`, `irr-from-moic`, `terminal-value-gordon`, `black-scholes-call`. Then post section 1 below and ask a few people directly to register.
+1. **Alpha Hunt is tomorrow.** If you want it to run, create it at `/admin` today: Sun 1 Nov, 17:00 IST (11:30 UTC), 60 min, `sharpe-ratio`, `irr-from-moic`, `terminal-value-gordon`, `one-step-binomial`. Create it **unrated** unless you've decided otherwise. Then post section 1 below and ask a few people directly to register.
+   - **Changed this run, after QA's review:** `one-step-binomial` replaces `black-scholes-call` as the Hard closer, because [#48](https://github.com/svelte-maker/basis/issues/48) found Black-Scholes accepting one of its own listed mistakes as correct on about half of seeds. QA also found smaller issues in `sharpe-ratio` (a zero or negative Sharpe on a few seeds) and `irr-from-moic` ("3th root"). Those are wording and edge-case issues, not wrong grading, but if you'd rather run a clean round, letting it slip to 8 Nov gives time for the fixes.
+   - **Unrated by default:** CTO-2 says rounds stay unrated until the anti-guessing limits ship, so the posts below don't promise a grade.
 2. **If it isn't created by Sunday morning, let it slip a week.** On Wednesday's run I'll move Alpha Hunt to Sun 8 Nov and push the rest of the calendar back one week, so the names and problem sets stay in order. Nothing to do on your side.
 3. **Allow the site in the agents' network** so we can see it again: add `basis-psi-roan.vercel.app` under Allowed domains in the project's environment settings.
 4. The asks in [#40](https://github.com/svelte-maker/basis/pull/40) still stand: the Founding Round badge decision, merging [#31](https://github.com/svelte-maker/basis/pull/31) (Basis #5 calendar row), and merging [#38](https://github.com/svelte-maker/basis/pull/38) before Sun 15 Nov.
@@ -29,18 +31,18 @@ The calendar needs no new rows this run. With #31 merged it runs to Sun 22 Nov, 
 
 **Title:** Basis #2: Alpha Hunt is tomorrow, 17:00 IST
 
-> Tomorrow, **Sun 1 Nov, 17:00 IST (11:30 UTC)**, is the first **rated** Basis contest.
+> Tomorrow, **Sun 1 Nov, 17:00 IST (11:30 UTC)**, is the next Basis contest.
 >
 > - 60 minutes, 4 problems from Easy to Hard, all about returns
 > - Everyone gets their own numbers, so you can talk about methods afterwards without giving anything away
-> - Finish it and you get your first grade on the B to AAA scale and your "First contest" badge
+> - Finish it and you get your "First contest" badge on your profile
 >
 > Register now at https://basis-psi-roan.vercel.app/contests.
 
 ### Short social version (WhatsApp, Discord)
 
 > 🏁 *Basis #2: Alpha Hunt* tomorrow 17:00 IST (11:30 UTC) · 60 minutes · 4 problems
-> Rated: your first B–AAA grade. Register: https://basis-psi-roan.vercel.app/contests
+> Finish it for your "First contest" badge. Register: https://basis-psi-roan.vercel.app/contests
 
 ---
 
@@ -68,7 +70,7 @@ This one is short and honest. Post it only if Alpha Hunt has been created, so it
 >
 > **New problems:** none this week. The bank is at 50 problems across 8 tracks.
 >
-> **Coming up:** Basis #2: Alpha Hunt, tomorrow at 17:00 IST, the first rated round. https://basis-psi-roan.vercel.app/contests
+> **Coming up:** Basis #2: Alpha Hunt, tomorrow at 17:00 IST. https://basis-psi-roan.vercel.app/contests
 >
 > **Try this week:** Expected credit loss, the problem of the week.
 
