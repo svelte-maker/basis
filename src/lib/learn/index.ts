@@ -5,6 +5,7 @@ import { excelForFinance, modellingPrinciples } from "./lessons/modelling";
 import { ipoFpo } from "./lessons/capitalMarkets";
 import { leveragedBuyouts, mergers } from "./lessons/deals";
 import { bonds, creditAnalysis, optionsForwards, portfolioRisk } from "./lessons/markets";
+import { bankCapital } from "./lessons/banking";
 import type { Lesson, LessonBlock, Module, ModuleKey } from "./types";
 
 export * from "./types";
@@ -31,6 +32,7 @@ export const LESSONS: Lesson[] = [
   ipoFpo,
   mergers, leveragedBuyouts,
   bonds, optionsForwards, portfolioRisk, creditAnalysis,
+  bankCapital,
 ];
 
 const bySlug = new Map(LESSONS.map((l) => [l.slug, l]));
