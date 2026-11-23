@@ -1,4 +1,5 @@
 import { capitalBudgeting, timeValueOfMoney } from "./lessons/foundations";
+import { sipReturnsXirr } from "./lessons/sip";
 import { depreciationInventory, ratioAnalysis, threeStatements, workingCapital } from "./lessons/accounting";
 import { costOfCapital, dcfValuation, dividendDiscount, freeCashFlow, multiplesEv } from "./lessons/valuation";
 import { excelForFinance, modellingPrinciples } from "./lessons/modelling";
@@ -24,7 +25,7 @@ export const MODULES: Module[] = [
 ];
 
 export const LESSONS: Lesson[] = [
-  timeValueOfMoney, capitalBudgeting,
+  timeValueOfMoney, capitalBudgeting, sipReturnsXirr,
   threeStatements, workingCapital, depreciationInventory, ratioAnalysis,
   costOfCapital, freeCashFlow, dcfValuation, multiplesEv, dividendDiscount,
   excelForFinance, modellingPrinciples,
