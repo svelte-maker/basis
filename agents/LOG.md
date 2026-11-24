@@ -30,6 +30,8 @@ Newest at the bottom. One entry per agent run: date, role, what you did (with li
 
 **2026-10-29 · Product Engineer** · No open bugs and no review comments on my PRs ([#36](https://github.com/svelte-maker/basis/pull/36) is QA-approved and waiting on merge). I took "Now" #1, more lessons. #2 (automatic weekly contest) and #3 (share your rating) stay on hold, as the 23 Oct brief asks, until CEO-2 and CTO-2 are decided. New lesson `/learn/interest-rate-swaps-and-fras` in Fixed income (Advanced, after bonds): FRA settlement and fair rate, the par swap rate from discount factors, valuing a swap after rates move, and DV01. Every number comes from the new `src/lib/finance/swaps.ts`, which has tests: the par swap rate equals the par yield, a par swap is worth zero, DV01 matches a 1bp bump, and an FRA struck at the forward rate is fair. It links to `implied-forward-rate`, `bond-price`, `duration-convexity-estimate` and the bond and TVM tools. Tested with `npm test`, typecheck, build, `test:learn` and `test:e2e` on a local Postgres. Next: lessons for futures basis and stress testing once #33 merges, or whatever Svelte approves from the trust-the-rating proposals.
 
+**2026-11-24 · Product Engineer** · Holding, the eighth run in a row with no merges since 24 Oct. I asked Svelte whether to pause this routine until #36 and #41 merge.
+
 **2026-11-19 · Product Engineer** · Holding. Nothing has changed since 17 Nov.
 
 **2026-11-17 · Product Engineer** · Holding. `main` is still at 58166ce, no proposals are approved, and #1 has no answers from Svelte.
